@@ -1,5 +1,5 @@
 const electron = require('electron');
-const {ipcRenderer} = electron;
+const {ipcRenderer, ipcMain} = electron;
 const ul = document.getElementById('list');
 
 const canvas = document.getElementById('canvas');
@@ -7,13 +7,7 @@ const ctx = canvas.getContext('2d');
 var paint = false;
 
 
-    
-window.addEventListener('onresize', function(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
-canvas.width = window.innerWidth - 6;
-canvas.height = window.innerHeight - 6;
+
 
 canvas.addEventListener('mousedown', function(e){
     console.log(window.innerWidth + " " + window.innerHeight);
@@ -61,7 +55,11 @@ function getCursorPosition(canvas, event) {
 //     e.target.remove();
 // }
 
+ipcRenderer.on('get:canvas', function() {
+    ipcRenderer.send('canvas:resize', canvas);
+})
+
 function draw(){
-    
+
 }
 

@@ -27,6 +27,10 @@ app.on( 'ready', function(){
         app.quit()
     });
 
+    mainWindow.on('resize', function(){
+        mainWindow.webContents.send('get:canvas');
+    });
+
     //Build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     //Insert Menu
@@ -58,6 +62,11 @@ function createAddWindow(){
 ipcMain.on('item:add', function(e, item){
     mainWindow.webContents.send('item:add', item);
     addWindow.close();
+})
+
+ipcMain.on('canvas:resize', function(e, canvas){
+    canvas.width = mainWindow.innerWidth;
+    canvas.height = mainWindow.innerHeight;
 })
 
 //Create menu template
