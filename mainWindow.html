@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <title>Paint</title>
+    <style>
+        html, body {
+            /* get rid of default spacing on the edges */
+            margin: 0;
+            padding: 0;
+        
+            /* fill the height of the browser */
+            height: 100%;
+        
+            /* no more scroll bar */
+            overflow: hidden;
+
+            /* get rid of extra space on edges*/
+            display:block;
+        }
+        canvas {
+            outline: black 3px solid;
+            position:fixed;
+        }
+        div {
+            text-align: center;
+        }
+    </style>
+    <!--<h1>List</h1>
+    <ul id="list"></ul>-->
+    <div>
+        <canvas id='canvas' width='1800' height='1000'></canvas>
+    </div>
+    <script src='mainWindowScript.js'></script>
+</html>
