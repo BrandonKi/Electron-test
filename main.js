@@ -67,8 +67,8 @@ ipcMain.on('item:add', function (e, item) {
 })
 
 ipcMain.on('canvas:resize', function (e, canvas) {
-    canvas.width = mainWindow.innerWidth;
-    canvas.height = mainWindow.innerHeight;
+    canvas.width = mainWindow.getSize()[0];
+    canvas.height = mainWindow.getSize()[1];
 })
 
 //Create menu template
