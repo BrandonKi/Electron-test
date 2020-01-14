@@ -1,25 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
-    <title>Paint</title>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-            display:block;
-        }
-        canvas {
-            outline: black 3px solid;
-        }
-        div {
-            text-align: center;
-        }
-    </style>
-    <!--<h1>List</h1>
-    <ul id="list"></ul>-->
-        <div>
-            <canvas id='canvas' width='1800' height='1000'></canvas>
-        </div>
-    <script src='mainWindowScript.js'></script>
+<html>
+
+<head>
+  <link rel="stylesheet" href="mainWindow.css">
+</head>
+
+<body>
+
+  <div id="title-bar">
+
+    <div id="title-bar-menu">
+      <button id="file" class="menu-button">File</button>
+    </div>
+
+    <div id="title-bar-btns">
+      <button id="minimize">-</button>
+      <button id="maximize">+</button>
+      <button id="close">x</button>
+    </div>
+
+    <div id="title">PlaceHolder</div>
+    
+  </div>
+  <div id="content">
+    <canvas id="canvas" width=500 height=500><canvas>
+  </div>
+  <script src="mainWindowScript.js"></script>
+</body>
+
 </html>

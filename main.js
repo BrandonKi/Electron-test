@@ -6,6 +6,9 @@ const dialog = require('electron').remote;
 
 const { app, BrowserWindow, Menu, ipcMain } = electron;
 
+let currentWidth;
+let currentHeight;
+let fullscreen = false;
 let mainWindow;
 let addWindow;
 
@@ -15,9 +18,12 @@ app.on('ready', function () {
     //create new window
     mainWindow = new BrowserWindow(
         {
-            webPreferences: { nodeIntegration: true }
+            webPreferences: { nodeIntegration: true },
+            frame : false
         }
     );
+    currentHeight = mainWindow.height;
+    currentWidth = mainWindow.width;
     //load html file into the window
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'mainWindow.html'),
@@ -27,46 +33,50 @@ app.on('ready', function () {
     //Quit app when closed
     mainWindow.on('closed', function () {
         app.quit()
-    });
+        });
 
-    mainWindow.on('resize', function () {
-        mainWindow.webContents.send('get:canvas');
-    });
+    mainWindow.on('resize', function(){
+        mainWindow.webContents.send('window:resize');
+    })
 
-    //Build menu from template
-    const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
-    //Insert Menu
-    Menu.setApplicationMenu(mainMenu);
 });
 
 // add window 
-function createAddWindow() {
-    //create new window
-    addWindow = new BrowserWindow({
-        width: 300,
-        height: 200,
-        title: 'Add Shoppinbg List Item',
-        webPreferences: { nodeIntegration: true }
-    });
-    //load html file into the window
-    addWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'addWindow.html'),
-        protocol: 'file',
-        slashes: true
-    }));
-    //garbage collection/optimization
-    addWindow.on('closed', function () {
-        addWindow = null;
-    })
-}
+// function createAddWindow() {
+//     //create new window
+//     addWindow = new BrowserWindow({
+//         width: 300,
+//         height: 200,
+//         title: 'Add Shopping List Item',
+//         webPreferences: { nodeIntegration: true }
+//     });
+//     //load html file into the window
+//     addWindow.loadURL(url.format({
+//         pathname: path.join(__dirname, 'addWindow.html'),
+//         protocol: 'file',
+//         slashes: true
+//     }));
+//     //garbage collection/optimization
+//     addWindow.on('closed', function () {
+//         addWindow = null;
+//     })
+// }
 
-//catch item:add
-ipcMain.on('item:add', function (e, item) {
-    mainWindow.webContents.send('item:add', item);
-    addWindow.close();
+ipcMain.on('maximize', function(){
+    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
+})
+
+ipcMain.on('minimize', function(){
+    mainWindow.minimize();
+})
+
+ipcMain.on('close', function(){
+    mainWindow.close();
 })
 
 ipcMain.on('canvas:resize', function (e, canvas) {
+    console.log(canvas.width);
+    console.log(canvas.height);
     canvas.width = mainWindow.getSize()[0];
     canvas.height = mainWindow.getSize()[1];
 })
@@ -129,7 +139,12 @@ if (process.env.NODE_ENV !== 'production') {
                 }
             },
             {
-                role: 'reload'       // adds a reload button and shortcut automatically
+                label: 'Relaod',
+
+                accelerator: "Ctrl+R",
+                click(item, focusedWindow) {
+                    focusedWindow.reload();
+                }       // adds a reload button and shortcut automatically
             }
         ]
     });

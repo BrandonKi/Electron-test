@@ -1,0 +1,45 @@
+
+body {
+    background-color: #454545;
+    padding: 0;
+    margin: 0;
+}
+
+#title-bar {
+    text-align: center;
+    -webkit-app-region: drag;
+    float: top;
+    background-color: #565656;
+    margin: 0;
+    padding: 0;
+}
+
+#title-bar-btns {
+    -webkit-app-region: no-drag;
+    float: right;
+    -webkit-user-select: none;
+}
+
+#title-bar-btns button {
+    border-width: 0;
+    -webkit-app-region: no-drag;
+    background-color: inherit;
+    -webkit-user-select: none;
+    height: inherit;
+    margin: 0;
+}
+
+#title-bar-btns button:hover {
+    background-color: #888888;
+}
+
+#title {
+    float: center;
+}
+
+#title-bar-menu {
+    -webkit-app-region: no-drag;
+    float: left;
+    -webkit-user-select: none;
+}
+

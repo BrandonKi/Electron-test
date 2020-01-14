@@ -1,63 +1,57 @@
 const electron = require('electron');
-const {ipcRenderer, ipcMain} = electron;
-const ul = document.getElementById('list');
-
-const canvas = document.getElementById('canvas');
+const {ipcRenderer} = electron;
+const canvas = document.getElementById('canvas'); 
 const ctx = canvas.getContext('2d');
-var paint = false;
 
 
 
+ipcRenderer.on('window:resize', function(){
+    ipcRenderer.send('canvas:resize', canvas);
+});
 
-canvas.addEventListener('mousedown', function(e){
-    console.log(window.innerWidth + " " + window.innerHeight);
-    paint = true;
+document.getElementById('file').addEventListener('click', function(){
+    document.getElementById('file').innerHTML = '123';
+});
+
+document.getElementById('maximize').addEventListener('click', function(){
+    ipcRenderer.send('maximize');
+});
+
+document.getElementById('minimize').addEventListener('click', function(){
+    ipcRenderer.send('minimize');
+});
+
+document.getElementById('close').addEventListener('click', function(){
+    ipcRenderer.send('close');
+});
+
+
+
+canvas.addEventListener('mousedown', function(){
     ctx.beginPath();
+    canvas.addEventListener('mousemove', paint, false);
 });
 
-canvas.addEventListener('mousemove', function(e){
-    if(paint){
-        //getCursorPosition(canvas, e);
-        const rect = canvas.getBoundingClientRect()
-        const x = event.clientX;// - rect.left
-        const y = event.clientY;// - rect.top
-        ctx.lineTo(x, y);
-        ctx.stroke();
-    }
+ctx.lineCap = 'round';
+ctx.strokeStyle = '#00CC99';
+
+
+
+
+canvas.addEventListener('mouseup', function(e){   
+    ctx.lineTo(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
+    ctx.stroke();
+    canvas.removeEventListener('mousemove', paint, false); 
 });
 
-canvas.addEventListener('mouseup', function(e){
-    paint = false;
-    //ctx.beginPath();
-});
-
-function getCursorPosition(canvas, event) {
-    const rect = canvas.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    console.log("x: " + x + " y: " + y)
+function paint(e){
+    ctx.lineTo(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
+    ctx.stroke();
 }
 
-// ipcRenderer.on('item:add', function(e, item){
-//     const li = document.createElement('li');
-//     const itemText = document.createTextNode(item);
-//     li.appendChild(itemText);
-//     ul.appendChild(li);
-// });
 
-// ipcRenderer.on('item:clear', function(){
-//     ul.innerHTML = '';
-// });
 
-// ul.addEventListener('dblclick', removeItem);
 
-// function removeItem(e){
-//     e.target.remove();
-// }
-
-ipcRenderer.on('get:canvas', function() {
-    ipcRenderer.send('canvas:resize', canvas);
-})
 
 function draw(){
 
