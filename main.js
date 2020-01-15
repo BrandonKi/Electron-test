@@ -6,9 +6,6 @@ const dialog = require('electron').remote;
 
 const { app, BrowserWindow, Menu, ipcMain } = electron;
 
-let currentWidth;
-let currentHeight;
-let fullscreen = false;
 let mainWindow;
 let addWindow;
 
@@ -22,23 +19,23 @@ app.on('ready', function () {
             frame : false
         }
     );
-    currentHeight = mainWindow.height;
-    currentWidth = mainWindow.width;
+    
     //load html file into the window
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'mainWindow.html'),
         protocol: 'file',
         slashes: true
     }));
+
     //Quit app when closed
     mainWindow.on('closed', function () {
         app.quit()
         });
 
-    mainWindow.on('resize', function(){
-        mainWindow.webContents.send('window:resize');
+    mainWindow.on('resize', function(){                                                                     // save this for later
+        //mainWindow.webContents.send('window:resize', mainWindow.getSize()[0], mainWindow.getSize()[1]);
     })
-
+    
 });
 
 // add window 
@@ -74,12 +71,6 @@ ipcMain.on('close', function(){
     mainWindow.close();
 })
 
-ipcMain.on('canvas:resize', function (e, canvas) {
-    console.log(canvas.width);
-    console.log(canvas.height);
-    canvas.width = mainWindow.getSize()[0];
-    canvas.height = mainWindow.getSize()[1];
-})
 
 //Create menu template
 

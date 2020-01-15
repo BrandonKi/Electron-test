@@ -1,17 +1,24 @@
 
 body {
     background-color: #454545;
-    padding: 0;
-    margin: 0;
+    padding: 0px;
+    margin: 0px;
+    overflow: scroll;
 }
 
+body::-webkit-scrollbar { 
+    display: none; 
+} 
+
 #title-bar {
+    position: fixed;
+    width: 100%;
     text-align: center;
     -webkit-app-region: drag;
-    float: top;
+    /* float: top; */
     background-color: #565656;
     margin: 0;
-    padding: 0;
+    padding: 1px;
 }
 
 #title-bar-btns {
@@ -29,12 +36,23 @@ body {
     margin: 0;
 }
 
-#title-bar-btns button:hover {
+#minimize:hover {
     background-color: #888888;
 }
 
+#maximize:hover {
+    background-color: #888888;
+}
+
+#close:hover {
+    background-color: red;
+}
+
+
+
 #title {
     float: center;
+    color: #ffffff;
 }
 
 #title-bar-menu {
@@ -43,3 +61,25 @@ body {
     -webkit-user-select: none;
 }
 
+#toolbar {
+    left: 0;
+    top: 40%;
+    position: fixed;
+    z-index: 9;
+    background-color: #f1f1f1;
+    border: 1px solid #d3d3d3;
+    text-align: center;
+    -webkit-user-select: none;
+  }
+  
+  #toolbar-draggable {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #2196F3;
+    color: #fff;
+    -webkit-user-select: none;
+  }
+
+  #toolbar-draggable:active {
+    cursor: grab;
+  }
