@@ -10,6 +10,11 @@ var fileData;
 var currentLines;
 const fs = require('fs') 
 
+
+// const {shell} = require('electron');
+//                                              IT WORKS!!!!!!!!!!!!!!
+// shell.openItem('test.bat');
+
 fs.readFile('Input.txt', (err, data) => { 
     if (err) throw err; 
     fileData = data;
@@ -62,8 +67,8 @@ document.addEventListener('keydown', (e) => {
             temp[temp.length-2].remove();
             temp.pop();
             temp.pop();
-            console.log(arr.length + ' ' + temp.length/2);   
         }
+        lastLine = arr.length+1;
     }
 });
 
