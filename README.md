@@ -1,5 +1,9 @@
-# Electron test
- 
- First time using electron and js/html/css for that matter. 
- 
-This will be either another photo editor or a text editor. Only time will tell.
+# Text-editor
+
+VSCode like style
+
+Simple text editor made using Electron
+
+Plans to integrate a custom programming language into this editor in the near future
+
+WIP
