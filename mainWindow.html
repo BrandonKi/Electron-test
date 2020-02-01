@@ -4,34 +4,37 @@
 <head>
   <link rel="stylesheet" href="mainWindow.css">
 </head>
-<body>
 
-  <div id="title-bar">
+<body id="body">
+  <div id="title-bar-container-div">
+    <div id="title-bar">
+      <div id="title-bar-menu">
+        <button id="file" class="menu-button">File</button>
+        <button id="edit" class="menu-button">Edit</button>
+        <button id="view" class="menu-button">View</button>
+        <button id="help" class="menu-button">Help</button>
+      </div>
 
-    <div id="title-bar-menu">
-      <button id="file" class="menu-button">File</button>
+      No File Open
+
+      <div id="title-bar-btns">
+        <div id="a" onmouseover="cbc('grey','minimize')" onmouseout="cbc('inherit','minimize')">
+          <button id="minimize">-</button>
+        </div>
+        <div id="a" onmouseover="cbc('grey','maximize')" onmouseout="cbc('inherit','maximize')">
+          <button id="maximize">+</button>
+        </div>
+        <div id="a" onmouseover="cbc('red','close')" onmouseout="cbc('inherit','close')">
+          <button id="close">x</button>
+        </div>
+      </div>
     </div>
-
-    <div id="title-bar-btns">
-      <button id="minimize">-</button>
-      <button id="maximize">+</button>
-      <button id="close">x</button>
-    </div>
-
-    <div id="title">No File Open</div>
-    
   </div>
-  <!-- Draggable DIV -->
-<div id="toolbar">
-  <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
-  <div id="toolbar-draggable">Click here to move</div>
-  <p>Move</p>
-  <p>this</p>
-  <p>DIV</p>
-</div>
-  <div id="content">
-    <canvas id="canvas" width=2000 height=2000><canvas>
+  <div class="content" id="content">
+    <div class='lineNums' id = 'lineNums'></div>
+    <div class='text-container' id='text-container' contenteditable="plaintext-only"></div>
   </div>
+  
   <script src="mainWindowScript.js"></script>
 </body>
 

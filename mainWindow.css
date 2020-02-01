@@ -1,6 +1,6 @@
 
 body {
-    background-color: #454545;
+    background-color: #444C53;
     padding: 0px;
     margin: 0px;
     overflow: scroll;
@@ -10,49 +10,70 @@ body::-webkit-scrollbar {
     display: none; 
 } 
 
+#title-bar-container-div {
+    z-index: 1;
+    -webkit-app-region: no-drag;
+    /* background-color: rgb(79, 88, 91); */
+    background-color: rgb(79, 88, 91);
+    height: 10px;
+}
+
 #title-bar {
     position: fixed;
-    width: 100%;
+    width: calc(100% - 1px);
     text-align: center;
     -webkit-app-region: drag;
-    /* float: top; */
-    background-color: #565656;
+    color: #EEEEEE;
+    background-color: rgb(79, 88, 91);
+    margin: 1px 1px 1px 1px;
+    
+}
+
+#title-bar-menu button{
+    z-index: 2;
+    color: #EEEEEE;
+    -webkit-app-region: no-drag;
+    border-width: 0;
+    background-color: inherit;
     margin: 0;
-    padding: 1px;
+    -webkit-user-select: none;
+    height: 15;
+
+}
+
+#title-bar-menu button:hover{
+    background-color: #888888;
+
 }
 
 #title-bar-btns {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     -webkit-app-region: no-drag;
     float: right;
     -webkit-user-select: none;
+    height: 100%;
+}
+
+#title-bar-btns div{
+    margin: 0;
+    padding: 0;
+    height: 100%;
 }
 
 #title-bar-btns button {
+    z-index: 2;
+    color: #EEEEEE;
+    font-size: large;
+    padding: 1px 10px;
     border-width: 0;
+    height: 100%;
     -webkit-app-region: no-drag;
     background-color: inherit;
     -webkit-user-select: none;
-    height: inherit;
     margin: 0;
-}
-
-#minimize:hover {
-    background-color: #888888;
-}
-
-#maximize:hover {
-    background-color: #888888;
-}
-
-#close:hover {
-    background-color: red;
-}
-
-
-
-#title {
-    float: center;
-    color: #ffffff;
 }
 
 #title-bar-menu {
@@ -61,25 +82,47 @@ body::-webkit-scrollbar {
     -webkit-user-select: none;
 }
 
-#toolbar {
-    left: 0;
-    top: 40%;
+#lineNums {
+    z-index: 0;
     position: fixed;
-    z-index: 9;
-    background-color: #f1f1f1;
-    border: 1px solid #d3d3d3;
-    text-align: center;
-    -webkit-user-select: none;
+    top: 5%;
+    left: 10%;
+    width: 30px;
+    display:block;
+    overflow:hidden;
+    height: inherit;
+    background-color: #333B42;
+}
+
+#content {
+    z-index: -1;
+    position: fixed;
+    top: 5%;
+    left: 10%;
+    width: 90%;
+    display:block;
+    overflow:auto;
+    overflow-x:hidden;
+    height: 90%;
+    background-color: #333B42;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
   }
   
-  #toolbar-draggable {
-    padding: 10px;
-    cursor: pointer;
-    background-color: #2196F3;
-    color: #fff;
-    -webkit-user-select: none;
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: inherit;
   }
-
-  #toolbar-draggable:active {
-    cursor: grab;
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
   }

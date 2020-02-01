@@ -1,15 +1,77 @@
 const electron = require('electron');
 const { ipcRenderer } = electron;
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
 
-let panMode = false;
+var content = document.getElementById('content');
+var lineNums = document.getElementById('lineNums');
+var text = document.getElementById('text-container');
+var lastLine;
+var currentLineNum;
+var fileData;
+var currentLines;
+const fs = require('fs') 
 
+fs.readFile('Input.txt', (err, data) => { 
+    if (err) throw err; 
+    fileData = data;
+    let lines =  fileData.toString().split('\n'); 
+    openFile(lines);
+}); 
+
+function openFile(lines){
+
+    let span = document.createElement('SPAN');
+    span.style = 'display:block;position:relative;left:30px;background-color:#333B42;';
+    span.id = 'textSpan';
+    span.innerHTML = fileData.toString();
+    text.appendChild(span);
+
+    for(lastLine = 1; lastLine < lines.length+1; lastLine++){
+        let numSpan = document.createElement('SPAN');
+        numSpan.style = 'position:absolute;width:30px;height:22px;border:10px;user-select:none;padding:0;margin: 0;z-index:-3;';
+        numSpan.innerHTML = lastLine;
+        lineNums.appendChild(numSpan);
+        lineNums.appendChild(document.createElement('BR'));
+
+    }
+}
+
+content.addEventListener('scroll', (e) => {
+    content.scrollLeft = 0;
+    var topPos = content.scrollTop;
+    lineNums.scrollTop = topPos;
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.code === "Enter"){
+        if(document.activeElement == text){
+            let span = document.createElement('SPAN');
+            span.style = 'position:absolute;width:30px;height:22px;border:10px;user-select:none;padding:0;margin: 0;z-index:-3;';
+            span.innerHTML = lastLine++;
+            lineNums.appendChild(span);
+            lineNums.appendChild(document.createElement('BR'));
+        }        
+    }
+    else if (e.code === "Backspace"){
+        var arr = text.children[0].innerHTML.split('\n');
+        while(arr[arr.length-1] == "" && arr[arr.length-2] == ""){
+            arr.pop();
+        }
+        var temp = Array.from(lineNums.children);
+        while(arr.length < temp.length/2){
+            temp[temp.length-1].remove();
+            temp[temp.length-2].remove();
+            temp.pop();
+            temp.pop();
+            console.log(arr.length + ' ' + temp.length/2);   
+        }
+    }
+});
 
 ipcRenderer.on('window:resize', function (e, width, height) {
     canvas.width = width;
     canvas.height = height;
 });
+
 
 document.getElementById('file').addEventListener('click', function () {
     document.getElementById('file').innerHTML = '123';
@@ -27,92 +89,6 @@ document.getElementById('close').addEventListener('click', function () {
     ipcRenderer.send('close');
 });
 
-
-let xo, yo, x1, y1;
-canvas.addEventListener('mousedown', function (e) {
-    if(e.button == 0){
-        if(!panMode){
-            ctx.beginPath();
-            canvas.addEventListener('mousemove', paint, false);
-        }else{
-            xo = e.clientX;
-            yo = e.cllientY;
-            canvas.addEventListener('mousemove', pan, false);
-        }
-    }
-});
-
-ctx.lineCap = 'round';
-ctx.strokeStyle = '#00CC99';
-
-canvas.addEventListener('mouseup', function (e) {
-    if(e.button == 0){
-        if(!panMode){
-            ctx.lineTo(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
-            ctx.stroke();
-        }
-        canvas.removeEventListener('mousemove', paint, false);
-        canvas.removeEventListener('mousemove', pan, false);
-    }
-});
-
-function pan(e) {
-    window.scrollTo(e.pageX, e.pageY);
-}
-
-function paint(e) {
-    ctx.lineTo(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
-    ctx.stroke();
-}
-
-window.addEventListener('keydown', function(e) {
-if(e.keyCode == 32 && e.target == document.body) {
-    e.preventDefault();
-    panMode = true;
-}
-});
-
-window.addEventListener('keyup', function(e) {
-    if(e.keyCode == 32 && e.target == document.body) {
-        e.preventDefault();
-        pan = false;
-    }
-    });
-
-
-elmnt = document.getElementById("toolbar");
-
-var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-document.getElementById(elmnt.id + "-draggable").onmousedown = dragMouseDown;
-
-
-function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // get the mouse cursor position at startup:
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    // call a function whenever the cursor moves:
-    document.onmousemove = elementDrag;
-}
-
-function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    // set the element's new position:
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-}
-
-function closeDragElement() {
-    // stop moving when mouse button is released:
-    document.onmouseup = null;
-    document.onmousemove = null;
-}
-
+function cbc(color, id){
+    document.getElementById(id).style.backgroundColor = color;
+} 

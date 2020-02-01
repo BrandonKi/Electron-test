@@ -32,7 +32,7 @@ app.on('ready', function () {
         app.quit()
         });
 
-    mainWindow.on('resize', function(){                                                                     // save this for later
+    mainWindow.on('resize', function(){                                                           // save this for later
         //mainWindow.webContents.send('window:resize', mainWindow.getSize()[0], mainWindow.getSize()[1]);
     })
     
@@ -40,20 +40,20 @@ app.on('ready', function () {
 
 // add window 
 // function createAddWindow() {
-//     //create new window
+        //create new window
 //     addWindow = new BrowserWindow({
 //         width: 300,
 //         height: 200,
 //         title: 'Add Shopping List Item',
 //         webPreferences: { nodeIntegration: true }
 //     });
-//     //load html file into the window
+        //load html file into the window
 //     addWindow.loadURL(url.format({
 //         pathname: path.join(__dirname, 'addWindow.html'),
 //         protocol: 'file',
 //         slashes: true
 //     }));
-//     //garbage collection/optimization
+        //garbage collection/optimization
 //     addWindow.on('closed', function () {
 //         addWindow = null;
 //     })
