@@ -9,10 +9,47 @@
   <div id="title-bar-container-div">
     <div id="title-bar">
       <div id="title-bar-menu">
-        <button id="file" class="menu-button">File</button>
-        <button id="edit" class="menu-button">Edit</button>
-        <button id="view" class="menu-button">View</button>
-        <button id="help" class="menu-button">Help</button>
+        <div class="dropdown">
+          <button id="file" class="menu-button">File</button>
+          <div class="dropdown-content" id="file-dropdown">
+            <button id="new-file" class="dropdown-button">New</button>
+            <button id="open-file" class="dropdown-button">Open</button>
+            <button id="open-last-file" class="dropdown-button">Open Last File</button>
+            <button id="save-file" class="dropdown-button">Save</button>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button id="edit" class="menu-button">Edit</button>
+          <div class="dropdown-content" id="edit-dropdown">
+            <button class="dropdown-button">New</button>
+            <button class="dropdown-button">Open</button>
+            <button class="dropdown-button">Save</button>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button id="view" class="menu-button">View</button>
+          <div class="dropdown-content" id="view-dropdown">
+            <button class="dropdown-button">New</button>
+            <button class="dropdown-button">Open</button>
+            <button class="dropdown-button">Save</button>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button id="help" class="menu-button">Help</button>
+          <div class="dropdown-content" id="help-dropdown">
+            <button class="dropdown-button">New</button>
+            <button class="dropdown-button">Open</button>
+            <button class="dropdown-button">Save</button>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button id="run" class="menu-button">Run</button>
+          <div class="dropdown-content" id="run-dropdown">
+            <button class="dropdown-button">New</button>
+            <button class="dropdown-button">Open</button>
+            <button class="dropdown-button">Save</button>
+          </div>
+        </div>
       </div>
 
       No File Open
@@ -32,7 +69,8 @@
   </div>
   <div class="content" id="content">
     <div class='lineNums' id = 'lineNums'></div>
-    <div class='text-container' id='text-container' contenteditable="plaintext-only"></div>
+    <div class="vl"></div>
+    <div class='text-container' id='text-container'></div>
   </div>
   
   <script src="mainWindowScript.js"></script>
