@@ -1,4 +1,9 @@
 
+::selection {
+    background-color: lightblue;
+    border-radius: 10px;
+}
+
 body {
     background-color: #444C53;
     padding: 0px;
