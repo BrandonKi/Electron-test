@@ -32,8 +32,9 @@ content.addEventListener('scroll', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if (e.code === "Enter" || (e.code === "KeyZ" && e.ctrlKey)) {
-        if (document.activeElement == text) {
+    if (e.code == "Enter" || (e.code == "KeyZ" && e.ctrlKey)) {
+    console.log(document.activeElement);
+        if (document.activeElement == document.getElementById('textSpan')) {
             let span = document.createElement('SPAN');
             span.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin: 0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
             span.innerHTML = lastLine++;
@@ -44,7 +45,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('keyup', (e) => {
-    if (e.code === "Backspace" || (e.code === "KeyZ" && e.ctrlKey)) {
+    if (e.code === "Backspace" || (e.code === "KeyZ" && e.ctrlKey && e.shiftKey)) {
         var arr = text.children[0].innerHTML.split('\n');
         if (arr[arr.length - 1] == "") {
             arr.pop();
