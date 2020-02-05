@@ -25,15 +25,6 @@ app.on('ready', function () {
         slashes: true
     }));
 
-    // mainWindow.on('save-last-closed-file-callback', function(){
-    //     app.quit();
-    // });
-
-    // mainWindow.on('resize', function(){                                                           // save this for later
-        //mainWindow.webContents.send('window:resize', mainWindow.getSize()[0], mainWindow.getSize()[1]);
-    // })
-    
-});
 
 // add window 
 // function createAddWindow() {
@@ -65,7 +56,7 @@ ipcMain.on('minimize', function(){
 })
 
 ipcMain.on('close', function(){
-    mainWindow.webContents.send('save-last-closed-file');
+    mainWindow.webContents.send('window-closed');
     mainWindow.close();
     app.quit();
 })
@@ -147,4 +138,4 @@ ipcMain.on('close', function(){
 //             }
 //         ]
 //     });
-
+});

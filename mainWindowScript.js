@@ -4,6 +4,7 @@ const { ipcRenderer } = electron;
 const content = document.getElementById('content');
 const lineNums = document.getElementById('lineNums');
 const text = document.getElementById('text-container');
+let text_span;
 let lastLine;
 let currentLineNum;
 let currentLines;
@@ -11,6 +12,7 @@ let filepath;
 let dropdownIsVisible = false;
 const fs = require('fs');
 const titleText = document.getElementById('title-text');
+let currentFileIsSaved = false;
 
 let data;
 const app_path = electron.remote.app.getPath('userData');
@@ -31,37 +33,28 @@ try{
 //      console.log(`Child exited with code ${code}`);      output from batch also option 2 for a callback     
 // });
 
-if(data == undefined || data.cwd == undefined){
-    initWithDirectory(null);
+if(data == undefined || data.unsavedfilecontent == ""){
+    initWithDirectory(null, 0);
+}
+else if (data.unsavedfilecontent != undefined && data.unsavedfilecontent != ''){
+    initWithDirectory(data.lastfilepath, 1);
 }
 else{
-    initWithDirectory(data.cwd);
+    initWithDirectory(data.cwd, 2);
 }
 
-function initWithDirectory(dir){
-    if(dir == undefined){
-        document.getElementById('lineNums').innerHTML = '';
-        document.getElementById('text-container').innerHTML = '';
-        const lines = [0 , 0, 0];
-        const span = document.createElement('SPAN');
-        span.style = 'display:block;position:relative;left:50px;background-color:#333B42;color:white;word-break:keep-all;white-space:nowrap';
-        span.id = 'textSpan';
-        span.innerHTML = "\n\n";
-        span.innerHTML += '\n';
-        span.contentEditable = 'plaintext-only';
-        const numOfLines = lines.length + 1;  
-        lines = lines.toString().replace(/,/g, ''); // replace all commas with nothing
-        text.appendChild(span);
-        for (lastLine = 1; lastLine < numOfLines; lastLine++) {
-            const numSpan = document.createElement('SPAN');
-            numSpan.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
-            numSpan.innerHTML = lastLine;
-            lineNums.appendChild(numSpan);
-            lineNums.appendChild(document.createElement('BR'));
-        }
-    }
-    else{
-        titleText.innerHTML = dir.substring(dir.lastIndexOf('\\')+1);
+function initWithDirectory(dir, arg){
+    filepath = dir;
+    switch(arg){
+        case 0:
+            initTextContent('\n');
+            break;
+        case 1:
+            initTextContent(data.unsavedfilecontent);
+            break;
+        case 2:
+            titleText.innerHTML = dir.substring(dir.lastIndexOf('\\')+1);
+            break;
     }
 }
 
@@ -73,7 +66,7 @@ content.addEventListener('scroll', (e) => {
 
 document.addEventListener('keydown', (e) => {
     if (e.code === "Enter" || (e.code === "KeyZ" && e.ctrlKey)) {
-        if (document.activeElement == document.getElementById('textSpan')) {
+        if (document.activeElement == text_span) {
             const span = document.createElement('SPAN');
             span.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
             span.innerHTML = lastLine++;
@@ -81,7 +74,7 @@ document.addEventListener('keydown', (e) => {
             lineNums.appendChild(document.createElement('BR'));
         }
     }
-    if(e.code === "KeyS" && e.ctrlKey)
+    else if(e.code === "KeyS" && e.ctrlKey)
         saveCurrentFile();
 });
 
@@ -103,10 +96,24 @@ document.addEventListener('keyup', (e) => {
     }
 });
 
-ipcRenderer.on('save-last-closed-file', function (e) {
+text_span.addEventListener('keydown', function(e){
+    if(currentFileIsSaved)
+        fs.readFile(filepath, (err, file_data) => {
+            if (err) throw err;
+            console.log(file_data.toString());
+            console.log(text_span.innerHTML);
+            if(text_span.innerHTML !== file_data.toString())
+                currentFileIsSaved = false;
+        });
+
+});
+
+
+ipcRenderer.on('window-closed', function (e) {
     filepath = (filepath === undefined || filepath === "" ? data.lastfilepath : filepath);
     const data = {
         lastfilepath: filepath,
+        unsavedfilecontent: currentFileIsSaved ? '' : text_span.innerHTML,
         cwd: process.cwd()
     }
     const jsonString = JSON.stringify(data)
@@ -136,8 +143,7 @@ document.getElementById('file').addEventListener('click', function () {
 const { dialog } = require('electron').remote;
 
 document.getElementById('open-file').addEventListener('click', function (event) {
-    dialog.showOpenDialog((fileNames) => {
-    }).then(result => {
+    dialog.showOpenDialog().then(result => {
         openFile(result.filePaths);
     }).catch(function(err){
         console.log(err);
@@ -152,21 +158,28 @@ document.getElementById('open-last-file').addEventListener('click', function (ev
 
 function openFile(path) {
     console.log(path);
-    filepath = path;
-    document.getElementById('lineNums').innerHTML = '';
-    document.getElementById('text-container').innerHTML = '';
+    filepath = path[0];
     fs.readFile(path[0], (err, file_data) => {
         if (err) throw err;
-        let lines = file_data.toString().split('\n');
-        const span = document.createElement('SPAN');
-        span.style = 'display:block;position:relative;left:50px;background-color:#333B42;color:white;word-break:keep-all;white-space:nowrap';
-        span.id = 'textSpan';
-        span.innerHTML = file_data.toString();
-        span.innerHTML += '\n';
-        span.contentEditable = 'plaintext-only';
+        initTextContent(file_data.toString());
+    });
+    
+}
+
+function initTextContent(file_data){
+    document.getElementById('lineNums').innerHTML = '';
+    document.getElementById('text-container').innerHTML = '';
+    
+        let lines = file_data.split('\n');
+        text_span = document.createElement('SPAN');
+        text_span.style = 'display:block;position:relative;left:50px;background-color:#333B42;color:white;word-break:keep-all;white-space:nowrap';
+        text_span.id = 'textSpan';
+        text_span.innerHTML = file_data;
+        text_span.innerHTML += '\n';
+        text_span.contentEditable = 'plaintext-only';
         const numOfLines = lines.length + 1;  
         lines = lines.toString().replace(/,/g, '');
-        text.appendChild(span);
+        text.appendChild(text_span);
         for (lastLine = 1; lastLine < numOfLines; lastLine++) {
             const numSpan = document.createElement('SPAN');
             numSpan.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
@@ -174,7 +187,6 @@ function openFile(path) {
             lineNums.appendChild(numSpan);
             lineNums.appendChild(document.createElement('BR'));
         }
-    });
 }
 
 document.getElementById('save-file').addEventListener('click', function(){
@@ -182,14 +194,34 @@ document.getElementById('save-file').addEventListener('click', function(){
 });
 
 function saveCurrentFile(){
-    const temp = document.getElementById('textSpan').innerHTML;
-    fs.writeFile(filepath[0], temp.substring(0, temp.lastIndexOf('\n')), function(err) {
-        if(err)
-            console.log(err);
+    if(filepath == undefined)
+        saveAs();
+    else{
+        save();
+    }
+}
+
+function saveAs(){
+    dialog.showSaveDialog().then(result => {
+        console.log(result.filePath);
+        if(result != undefined){
+            filepath = result.filePath;
+            save();
+        }
+    }).catch(function(err){
+        console.log(err);
     });
 }
 
-
+function save(){
+    const temp = text_span.innerHTML;
+        fs.writeFile(filepath, temp, function(err) {
+            if(err)
+                console.log(err);
+            else
+                currentFileIsSaved = true;
+        });
+}
 
 document.getElementById('edit').addEventListener('click', function () {
     const temp = document.getElementById('edit-dropdown');
