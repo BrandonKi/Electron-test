@@ -96,17 +96,7 @@ document.addEventListener('keyup', (e) => {
     }
 });
 
-text_span.addEventListener('keydown', function(e){
-    if(currentFileIsSaved)
-        fs.readFile(filepath, (err, file_data) => {
-            if (err) throw err;
-            console.log(file_data.toString());
-            console.log(text_span.innerHTML);
-            if(text_span.innerHTML !== file_data.toString())
-                currentFileIsSaved = false;
-        });
 
-});
 
 
 ipcRenderer.on('window-closed', function (e) {
@@ -127,7 +117,7 @@ ipcRenderer.on('window-closed', function (e) {
 });
 
 
-document.getElementById('file').addEventListener('click', function () {
+document.getElementById('file').onclick = function () {
     const temp = document.getElementById('file-dropdown');
     hideAllDropdowns('file');
     if (temp.style.display === "block") {
@@ -138,29 +128,31 @@ document.getElementById('file').addEventListener('click', function () {
         temp.style.display = "block";
         dropdownIsVisible = true;
     }
-});
+}
 
 const { dialog } = require('electron').remote;
 
-document.getElementById('open-file').addEventListener('click', function (event) {
+document.getElementById('open-file').onclick = function () {
     dialog.showOpenDialog().then(result => {
         openFile(result.filePaths);
     }).catch(function(err){
         console.log(err);
     });
     hideAllDropdowns();
-});
+}
 
-document.getElementById('open-last-file').addEventListener('click', function (event) {
+document.getElementById('open-last-file').onclick = function () {
+
     openFile(data.lastfilepath);
     hideAllDropdowns();
-});
+}
 
 function openFile(path) {
     console.log(path);
-    filepath = path[0];
-    fs.readFile(path[0], (err, file_data) => {
-        if (err) throw err;
+    filepath = path;
+    fs.readFile(filepath, (err, file_data) => {
+        if (err) 
+            throw err;
         initTextContent(file_data.toString());
     });
     
@@ -169,29 +161,39 @@ function openFile(path) {
 function initTextContent(file_data){
     document.getElementById('lineNums').innerHTML = '';
     document.getElementById('text-container').innerHTML = '';
-    
-        let lines = file_data.split('\n');
-        text_span = document.createElement('SPAN');
-        text_span.style = 'display:block;position:relative;left:50px;background-color:#333B42;color:white;word-break:keep-all;white-space:nowrap';
-        text_span.id = 'textSpan';
-        text_span.innerHTML = file_data;
-        text_span.innerHTML += '\n';
-        text_span.contentEditable = 'plaintext-only';
-        const numOfLines = lines.length + 1;  
-        lines = lines.toString().replace(/,/g, '');
-        text.appendChild(text_span);
-        for (lastLine = 1; lastLine < numOfLines; lastLine++) {
-            const numSpan = document.createElement('SPAN');
-            numSpan.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
-            numSpan.innerHTML = lastLine;
-            lineNums.appendChild(numSpan);
-            lineNums.appendChild(document.createElement('BR'));
-        }
+
+    let lines = file_data.split('\n');
+    text_span = document.createElement('SPAN');
+    text_span.style = 'display:block;position:relative;left:50px;background-color:#333B42;color:white;word-break:keep-all;white-space:nowrap';
+    text_span.id = 'textSpan';
+    text_span.innerHTML = file_data;
+    text_span.innerHTML += '\n';
+    text_span.contentEditable = 'plaintext-only';
+    const numOfLines = lines.length + 1;  
+    lines = lines.toString().replace(/,/g, '');
+    text.appendChild(text_span);
+    for (lastLine = 1; lastLine < numOfLines; lastLine++) {
+        const numSpan = document.createElement('SPAN');
+        numSpan.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
+        numSpan.innerHTML = lastLine;
+        lineNums.appendChild(numSpan);
+        lineNums.appendChild(document.createElement('BR'));
+    }
+    text_span.addEventListener('keydown', function(e){
+        if(currentFileIsSaved)
+            fs.readFile(filepath, (err, file_data) => {
+                if (err) throw err;
+                console.log(file_data.toString());
+                console.log(text_span.innerHTML);
+                if(text_span.innerHTML !== file_data.toString())
+                    currentFileIsSaved = false;
+            });
+    });
 }
 
-document.getElementById('save-file').addEventListener('click', function(){
+document.getElementById('save-file').onclick = function(){
     saveCurrentFile();
-});
+}
 
 function saveCurrentFile(){
     if(filepath == undefined)
@@ -223,7 +225,7 @@ function save(){
         });
 }
 
-document.getElementById('edit').addEventListener('click', function () {
+document.getElementById('edit').onclick = function () {
     const temp = document.getElementById('edit-dropdown');
     hideAllDropdowns('edit');
     if (temp.style.display === "block") {
@@ -234,9 +236,9 @@ document.getElementById('edit').addEventListener('click', function () {
         temp.style.display = "block";
         dropdownIsVisible = true;
     }
-});
+}
 
-document.getElementById('view').addEventListener('click', function () {
+document.getElementById('view').onclick = function () {
     const temp = document.getElementById('view-dropdown');
     hideAllDropdowns('view');
     if (temp.style.display === "block") {
@@ -247,9 +249,9 @@ document.getElementById('view').addEventListener('click', function () {
         temp.style.display = "block";
         dropdownIsVisible = true;
     }
-});
+}
 
-document.getElementById('help').addEventListener('click', function () {
+document.getElementById('help').onclick = function () {
     const temp = document.getElementById('help-dropdown');
     hideAllDropdowns('help');
     if (temp.style.display === "block") {
@@ -260,7 +262,7 @@ document.getElementById('help').addEventListener('click', function () {
         temp.style.display = "block";
         dropdownIsVisible = true;
     }
-});
+}
 
 document.getElementById('file').addEventListener('mouseover', function () {
     if (dropdownIsVisible) {
@@ -299,7 +301,7 @@ document.getElementById('run').addEventListener('mouseover', function () {
 
 
 document.getElementById('content').addEventListener('mousedown', function (e) {
-    document.getElementById('cursor-follower').style.top = "" + (e.clientY - 60) + "px";
+    document.getElementById('cursor-follower').style.top = "" + ((e.clientY - 70)/22) + "px";
     hideAllDropdowns();
     dropdownIsVisible = false;
 });
