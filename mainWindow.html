@@ -12,53 +12,64 @@
         <div class="dropdown">
           <button id="file" class="menu-button">File</button>
           <div class="dropdown-content" id="file-dropdown">
-            <button id="new-file" class="dropdown-button">New</button>
-            <button id="open-file" class="dropdown-button">Open</button>
-            <button id="open-last-file" class="dropdown-button">Open Last File</button>
-            <button id="save-file" class="dropdown-button">Save</button>
+            <button id="new-file" class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
+            <hr>
+            <button id="open-file" class="dropdown-button"><span class="dropdown-button-text">Open</span><span class="dropdown-button-shortcut">Ctrl+O</span></button>
+            <button id="open-last-file" class="dropdown-button"><span class="dropdown-button-text">Open Last File</span></button>
+            <button id="open-project" class="dropdown-button"><span class="dropdown-button-text">Open Project</span></button>
+            <hr>
+            <button id="save-file" class="dropdown-button"><span class="dropdown-button-text">Save</span><span class="dropdown-button-shortcut">Ctrl+S</span></button>
           </div>
         </div>
         <div class="dropdown">
           <button id="edit" class="menu-button">Edit</button>
           <div class="dropdown-content" id="edit-dropdown">
-            <button class="dropdown-button">New</button>
-            <button class="dropdown-button">Open</button>
-            <button class="dropdown-button">Save</button>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
+            <hr>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
+            <hr>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
           </div>
         </div>
         <div class="dropdown">
           <button id="view" class="menu-button">View</button>
           <div class="dropdown-content" id="view-dropdown">
-            <button class="dropdown-button">New</button>
-            <button class="dropdown-button">Open</button>
-            <button class="dropdown-button">Save</button>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
+            <hr>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
+            <hr>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
           </div>
         </div>
         <div class="dropdown">
           <button id="help" class="menu-button">Help</button>
           <div class="dropdown-content" id="help-dropdown">
-            <button class="dropdown-button">New</button>
-            <button class="dropdown-button">Open</button>
-            <button class="dropdown-button">Save</button>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
+            <hr>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
+            <hr>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
           </div>
         </div>
         <div class="dropdown">
           <button id="run" class="menu-button">Run</button>
           <div class="dropdown-content" id="run-dropdown">
-            <button class="dropdown-button">New</button>
-            <button class="dropdown-button">Open</button>
-            <button class="dropdown-button">Save</button>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
+            <hr>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
+            <hr>
+            <button class="dropdown-button"><span class="dropdown-button-text">New</span><span class="dropdown-button-shortcut">Ctrl+N</span></button>
           </div>
         </div>
       </div>
 
-      No File Open
+      <span id='title-text'>No File Open</span>
 
       <div id="title-bar-btns">
         <div id="a" onmouseover="cbc('grey','minimize')" onmouseout="cbc('inherit','minimize')">
           <button id="minimize">-</button>
         </div>
-        <div id="a" onmouseover="cbc('grey','maximize')" onmouseout="cbc('inherit','maximize')">
+        <div id="a" onmouseover="cbc('grey','maximize')" onmouseout="cbc('inherit','maximize')"> <!-- I know this is useless-->
           <button id="maximize">+</button>
         </div>
         <div id="a" onmouseover="cbc('red','close')" onmouseout="cbc('inherit','close')">
@@ -71,6 +82,8 @@
     <div class='lineNums' id = 'lineNums'></div>
     <div class="vl"></div>
     <div class='text-container' id='text-container'></div>
+    <div id="cursor-follower"></div>
+
   </div>
   
   <script src="mainWindowScript.js"></script>
