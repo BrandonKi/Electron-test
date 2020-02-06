@@ -21,17 +21,6 @@ try{
 }catch(err){
     data = undefined;
 }
-// const spawn = require('child_process').spawn;
-// const bat = spawn('cmd.exe', ['/c', 'C:\\Users\\Kirin\\OneDrive\\Desktop\\Electron-test\\test.bat', '1111', '3333333']);  IT WORKS!!!!!
-
-// bat.stdout.on('data', (data) => {
-//     let str = String.fromCharCode.apply(null, data);          output from batch also option 1 for a callback
-//     console.info(str);
-// });
-
-// bat.on('exit', (code) => {
-//      console.log(`Child exited with code ${code}`);      output from batch also option 2 for a callback     
-// });
 
 if(data == undefined || data.unsavedfilecontent == ""){
     initWithDirectory(null, 0);
@@ -59,27 +48,12 @@ function initWithDirectory(dir, arg){
 }
 
 content.addEventListener('scroll', (e) => {
-    content.scrollLeft = 0;
     const topPos = content.scrollTop;
     lineNums.scrollTop = topPos;
 });
 
 document.addEventListener('keydown', (e) => {
-    if (e.code === "Enter" || (e.code === "KeyZ" && e.ctrlKey)) {
-        if (document.activeElement == text_span) {
-            const span = document.createElement('SPAN');
-            span.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
-            span.innerHTML = lastLine++;
-            lineNums.appendChild(span);
-            lineNums.appendChild(document.createElement('BR'));
-        }
-    }
-    else if(e.code === "KeyS" && e.ctrlKey)
-        saveCurrentFile();
-});
-
-document.addEventListener('keyup', (e) => {
-    if (e.code === "Backspace" || (e.code === "KeyZ" && e.ctrlKey)) {
+    if (e.code === "Backspace" || e.code === "Delete") {
         const arr = text.children[0].innerHTML.split('\n');
         if (arr[arr.length - 1] === "") {
             arr.pop();
@@ -93,9 +67,50 @@ document.addEventListener('keyup', (e) => {
             temp.pop();
         }
         lastLine = arr.length + 1;
+        if(e.code === "Backspace")
+            document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) - 18) + 'px';
     }
-});
+    else if ((e.code === "Enter" && !e.ctrlKey)) {
+        if (document.activeElement == text_span) {
+            const span = document.createElement('SPAN');
+            span.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
+            span.innerHTML = lastLine++;
+            lineNums.appendChild(span);
+            lineNums.appendChild(document.createElement('BR'));
+            document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) + 18) + 'px';
+        }
+    }
+    else if ((e.code === "KeyZ" && e.ctrlKey)){
+        for(let i = 0; i < 1; i++){
+            const arr = text.children[0].innerHTML.split('\n');
+            while(lastLine < arr.length){
+                const span = document.createElement('SPAN');
+                span.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
+                span.innerHTML = lastLine++;
+                lineNums.appendChild(span);
+                lineNums.appendChild(document.createElement('BR'));
+            }
+            document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) + 18) + 'px';
 
+            if (arr[arr.length - 1] === "") {
+                arr.pop();
+            }
+
+            tempstr = text.children[0].innerHTML;
+            const temp = Array.from(lineNums.children);
+            while (arr.length < temp.length / 2) {
+                temp[temp.length - 1].remove();
+                temp[temp.length - 2].remove();
+                temp.pop();
+                temp.pop();
+            }
+            lastLine = arr.length + 1;
+        }
+    }
+    else if(e.code === "KeyS" && e.ctrlKey)
+        saveCurrentFile();
+    
+});
 
 
 
@@ -134,7 +149,7 @@ const { dialog } = require('electron').remote;
 
 document.getElementById('open-file').onclick = function () {
     dialog.showOpenDialog().then(result => {
-        openFile(result.filePaths);
+        openFile(result.filePaths[0]);
     }).catch(function(err){
         console.log(err);
     });
@@ -164,7 +179,7 @@ function initTextContent(file_data){
 
     let lines = file_data.split('\n');
     text_span = document.createElement('SPAN');
-    text_span.style = 'display:block;position:relative;left:50px;background-color:#333B42;color:white;word-break:keep-all;white-space:nowrap';
+    text_span.style = 'display:block;position:relative;left:50px;background-color:#333B42;color:white;word-break:keep-all;white-space:nowrap;';
     text_span.id = 'textSpan';
     text_span.innerHTML = file_data;
     text_span.innerHTML += '\n';
@@ -174,7 +189,7 @@ function initTextContent(file_data){
     text.appendChild(text_span);
     for (lastLine = 1; lastLine < numOfLines; lastLine++) {
         const numSpan = document.createElement('SPAN');
-        numSpan.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
+        numSpan.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;color:#AAAAAA;font-size:12px;text-align:right;';
         numSpan.innerHTML = lastLine;
         lineNums.appendChild(numSpan);
         lineNums.appendChild(document.createElement('BR'));
@@ -213,6 +228,7 @@ function saveAs(){
     }).catch(function(err){
         console.log(err);
     });
+    dropdownIsVisible = false;
 }
 
 function save(){
@@ -223,6 +239,7 @@ function save(){
             else
                 currentFileIsSaved = true;
         });
+        dropdownIsVisible = false;
 }
 
 document.getElementById('edit').onclick = function () {
@@ -254,6 +271,19 @@ document.getElementById('view').onclick = function () {
 document.getElementById('help').onclick = function () {
     const temp = document.getElementById('help-dropdown');
     hideAllDropdowns('help');
+    if (temp.style.display === "block") {
+        temp.style.display = "none";
+        dropdownIsVisible = false;
+    }
+    else {
+        temp.style.display = "block";
+        dropdownIsVisible = true;
+    }
+}
+
+document.getElementById('run').onclick = function(){
+    const temp = document.getElementById('run-dropdown');
+    hideAllDropdowns('run');
     if (temp.style.display === "block") {
         temp.style.display = "none";
         dropdownIsVisible = false;
@@ -300,12 +330,28 @@ document.getElementById('run').addEventListener('mouseover', function () {
 });
 
 
-document.getElementById('content').addEventListener('mousedown', function (e) {
-    document.getElementById('cursor-follower').style.top = "" + ((e.clientY - 70)/22) + "px";
+// const spawn = require('child_process').spawn;
+
+// const bat = spawn('cmd.exe', ['/c', 'C:\\Users\\Kirin\\OneDrive\\Desktop\\Electron-test\\test.bat', '1111', '3333333']);  IT WORKS!!!!!
+
+// bat.stdout.on('data', (data) => {
+//     let str = String.fromCharCode.apply(null, data);          output from batch also option 1 for a callback
+//     console.info(str);
+// });
+
+// bat.on('exit', (code) => {
+//      console.log(`Child exited with code ${code}`);      output from batch also option 2 for a callback     
+// });
+
+
+text.addEventListener('mousedown', function (e) {
+    let temp = document.getElementById('cursor-follower');
+    temp.style.display = "block";
+    console.log((e.clientY - content.offsetTop) + '  ' + (Math.floor((e.clientY - content.offsetTop)/18)));
+    temp.style.top = "" + (Math.floor((e.clientY - content.offsetTop)/18)*18) + "px";
     hideAllDropdowns();
     dropdownIsVisible = false;
 });
-
 
 
 function hideAllDropdowns(str) {
