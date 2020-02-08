@@ -175,6 +175,7 @@ body::-webkit-scrollbar {
     left: calc(20% + 29px);
     opacity: 75%;
     position: fixed;
+    z-index: 10;
   }
 
 #content {
@@ -202,6 +203,30 @@ body::-webkit-scrollbar {
     border-radius: 5px;
     z-index: 1;
     pointer-events: none;
+}
+
+#terminal {
+    position: fixed;
+    height: 20%;
+    width: 100%;
+    background-color: #111111;
+    top: 80%;
+    z-index: 10;
+}
+
+#terminal-resizer {
+    position: relative;
+    top: 0;
+    padding: 0;
+    width: 100%;
+    margin: 0;
+    height: 5px;
+    border: solid grey;
+    border-width: 3px 0 0 0;
+}
+
+#terminal-resizer:hover {
+    cursor: n-resize;
 }
 
 /* width */

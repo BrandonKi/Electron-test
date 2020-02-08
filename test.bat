@@ -1,2 +1,3 @@
-echo %1
-echo %2
+cd %1
+javac %2
+java %3

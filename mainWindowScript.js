@@ -1,6 +1,9 @@
 const electron = require('electron');
 const { ipcRenderer } = electron;
 
+
+const terminal = document.getElementById('terminal');
+const terminal_resize = document.getElementById('terminal-resizer');
 const content = document.getElementById('content');
 const lineNums = document.getElementById('lineNums');
 const text = document.getElementById('text-container');
@@ -16,6 +19,7 @@ let currentFileIsSaved = false;
 
 let data;
 const app_path = electron.remote.app.getPath('userData');
+
 try{
     data = require(app_path + '\\data.json');
 }catch(err){
@@ -53,24 +57,7 @@ content.addEventListener('scroll', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if (e.code === "Backspace" || e.code === "Delete") {
-        const arr = text.children[0].innerHTML.split('\n');
-        if (arr[arr.length - 1] === "") {
-            arr.pop();
-        }
-        tempstr = text.children[0].innerHTML;
-        const temp = Array.from(lineNums.children);
-        while (arr.length < temp.length / 2) {
-            temp[temp.length - 1].remove();
-            temp[temp.length - 2].remove();
-            temp.pop();
-            temp.pop();
-        }
-        lastLine = arr.length + 1;
-        if(e.code === "Backspace")
-            document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) - 18) + 'px';
-    }
-    else if ((e.code === "Enter" && !e.ctrlKey)) {
+    if ((e.code === "Enter" && !e.ctrlKey)) {
         if (document.activeElement == text_span) {
             const span = document.createElement('SPAN');
             span.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
@@ -109,9 +96,31 @@ document.addEventListener('keydown', (e) => {
     }
     else if(e.code === "KeyS" && e.ctrlKey)
         saveCurrentFile();
-    
+    else if(e.code === "ArrowUp")
+        document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) - 18) + 'px';
+    else if(e.code === "ArrowDown")
+        document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) + 18) + 'px';
+
 });
 
+document.addEventListener('keyup', function(e){
+    if (e.code === "Backspace" || e.code === "Delete") {
+        const arr = text.children[0].innerHTML.split('\n');
+        if (arr[arr.length - 1] === "") {
+            arr.pop();
+        }
+        tempstr = text.children[0].innerHTML;
+        const temp = Array.from(lineNums.children);
+        while (arr.length < temp.length / 2) {
+            temp[temp.length - 1].remove();
+            temp[temp.length - 2].remove();
+            temp.pop();
+            temp.pop();
+            document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) - 18) + 'px';
+        }
+        lastLine = arr.length + 1;
+    }
+});
 
 
 ipcRenderer.on('window-closed', function (e) {
@@ -163,7 +172,6 @@ document.getElementById('open-last-file').onclick = function () {
 }
 
 function openFile(path) {
-    console.log(path);
     filepath = path;
     fs.readFile(filepath, (err, file_data) => {
         if (err) 
@@ -198,8 +206,6 @@ function initTextContent(file_data){
         if(currentFileIsSaved)
             fs.readFile(filepath, (err, file_data) => {
                 if (err) throw err;
-                console.log(file_data.toString());
-                console.log(text_span.innerHTML);
                 if(text_span.innerHTML !== file_data.toString())
                     currentFileIsSaved = false;
             });
@@ -220,7 +226,6 @@ function saveCurrentFile(){
 
 function saveAs(){
     dialog.showSaveDialog().then(result => {
-        console.log(result.filePath);
         if(result != undefined){
             filepath = result.filePath;
             save();
@@ -329,26 +334,33 @@ document.getElementById('run').addEventListener('mouseover', function () {
     }
 });
 
+document.getElementById('run-RunWithJava').onclick = function(){
+    runWithJava();
+    hideAllDropdowns();
+    dropdownIsVisible = false;
+};
 
-// const spawn = require('child_process').spawn;
 
-// const bat = spawn('cmd.exe', ['/c', 'C:\\Users\\Kirin\\OneDrive\\Desktop\\Electron-test\\test.bat', '1111', '3333333']);  IT WORKS!!!!!
+function runWithJava(){
+    console.log('running');
+    const spawn = require('child_process').spawn;
+    const bat = spawn('cmd.exe', ['/c', 'C:\\Users\\Kirin\\OneDrive\\Desktop\\Electron-test\\test.bat', 'C:\\Users\\Kirin\\OneDrive\\Desktop\\Electron-test', 'Input.java', 'Input']);  //IT WORKS!!!!!
 
-// bat.stdout.on('data', (data) => {
-//     let str = String.fromCharCode.apply(null, data);          output from batch also option 1 for a callback
-//     console.info(str);
-// });
+    bat.stdout.on('data', (data) => {
+        let str = String.fromCharCode.apply(null, data);          //output from batch also option 1 for a callback
+        console.log(str);
+    });
 
-// bat.on('exit', (code) => {
-//      console.log(`Child exited with code ${code}`);      output from batch also option 2 for a callback     
-// });
+    bat.on('exit', (code) => {
+        console.log(`Child exited with code ${code}`);     // output from batch also option 2 for a callback     
+    });
+}
 
 
 text.addEventListener('mousedown', function (e) {
     let temp = document.getElementById('cursor-follower');
     temp.style.display = "block";
-    console.log((e.clientY - content.offsetTop) + '  ' + (Math.floor((e.clientY - content.offsetTop)/18)));
-    temp.style.top = "" + (Math.floor((e.clientY - content.offsetTop)/18)*18) + "px";
+    temp.style.top = "" + (Math.floor((e.clientY - content.offsetTop + content.scrollTop)/18)*18) + "px";
     hideAllDropdowns();
     dropdownIsVisible = false;
 });
@@ -409,3 +421,32 @@ document.getElementById('close').addEventListener('click', function () {
 function cbc(color, id) {
     document.getElementById(id).style.backgroundColor = color;
 }
+
+terminal_resize.addEventListener('mousedown', function(e){
+    document.addEventListener('mousemove', resize);
+        document.addEventListener('mouseup', function(e){
+            document.removeEventListener('mousemove', resize);
+            body.style.cursor = '';
+            body.style.userSelect = '';
+    });
+});
+
+function resize(e){
+    let stopResize = false;
+    body.style.userSelect = 'none';
+    body.style.cursor = 'n-resize';
+    console.log(terminal.style.height.substring(0,terminal.style.height.length-2) + ' ' + e.clientY + ' ' + (window.innerHeight - 100));
+    if(terminal.style.height.substring(0,terminal.style.height.length-2) <= 400 && e.clientY >= window.innerHeight - 398 && terminal.style.height.substring(0,terminal.style.height.length-2) > 100){
+        terminal.style.top = e.clientY + 'px';
+        terminal.style.height = window.innerHeight - e.clientY + 'px';
+    }
+    else if (terminal.style.height.substring(0,terminal.style.height.length-2) <= 100 && e.clientY > window.innerHeight - 100){
+        terminal.style.top = window.innerHeight - 98 +  'px';
+        terminal.style.height = 98 + 'px';
+    }
+    else{
+        terminal.style.top = window.innerHeight - 398 +  'px';
+        terminal.style.height = 398 + 'px';
+    }
+}
+
