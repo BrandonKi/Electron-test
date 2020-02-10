@@ -185,9 +185,31 @@ body::-webkit-scrollbar {
     left: 20%;
     width: 90%;
     display:block;
-    overflow:auto;
+    overflow:hidden;
     height: 90%;
     background-color: #333B42;
+}
+
+#text-container {
+    position: relative;
+    left: 50px;
+    overflow: auto;
+    height: 100%;
+    width: 80%;
+}
+
+.code {
+    width:100%;
+    height:calc(77% + 2px);
+    resize:none;
+    display:block;
+    position:relative;
+    font-size:16px;
+    background-color:#333B42;
+    color:white;
+    word-break:keep-all;
+    white-space:nowrap;
+    overflow:scroll;
 }
 
 #cursor-follower {
@@ -212,6 +234,7 @@ body::-webkit-scrollbar {
     background-color: #111111;
     top: 80%;
     z-index: 10;
+    color: #ffffff;
 }
 
 #terminal-resizer {
@@ -232,6 +255,10 @@ body::-webkit-scrollbar {
 /* width */
 ::-webkit-scrollbar {
     width: 10px;
+  }
+
+::-webkit-scrollbar:hover {
+    cursor: pointer;
   }
   
   /* Track */

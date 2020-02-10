@@ -7,11 +7,12 @@ const terminal_resize = document.getElementById('terminal-resizer');
 const content = document.getElementById('content');
 const lineNums = document.getElementById('lineNums');
 const text = document.getElementById('text-container');
-let text_span;
+let tab1_code;
 let lastLine;
 let currentLineNum;
 let currentLines;
 let filepath;
+let filename;
 let dropdownIsVisible = false;
 const fs = require('fs');
 const titleText = document.getElementById('title-text');
@@ -26,7 +27,7 @@ try{
     data = undefined;
 }
 
-if(data == undefined || data.unsavedfilecontent == ""){
+if(data == undefined || data.unsavedfilecontent == "" || data.lastfilepath == undefined){
     initWithDirectory(null, 0);
 }
 else if (data.unsavedfilecontent != undefined && data.unsavedfilecontent != ''){
@@ -43,9 +44,11 @@ function initWithDirectory(dir, arg){
             initTextContent('\n');
             break;
         case 1:
+            filename = dir.substring(dir.lastIndexOf('\\')+1);
             initTextContent(data.unsavedfilecontent);
             break;
         case 2:
+            filename = dir.substring(dir.lastIndexOf('\\')+1);
             titleText.innerHTML = dir.substring(dir.lastIndexOf('\\')+1);
             break;
     }
@@ -58,7 +61,7 @@ content.addEventListener('scroll', (e) => {
 
 document.addEventListener('keydown', (e) => {
     if ((e.code === "Enter" && !e.ctrlKey)) {
-        if (document.activeElement == text_span) {
+        if (document.activeElement == tab1_code) {
             const span = document.createElement('SPAN');
             span.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
             span.innerHTML = lastLine++;
@@ -127,7 +130,7 @@ ipcRenderer.on('window-closed', function (e) {
     filepath = (filepath === undefined || filepath === "" ? data.lastfilepath : filepath);
     const data = {
         lastfilepath: filepath,
-        unsavedfilecontent: currentFileIsSaved ? '' : text_span.innerHTML,
+        unsavedfilecontent: currentFileIsSaved ? '' : tab1_code.innerHTML,
         cwd: process.cwd()
     }
     const jsonString = JSON.stringify(data)
@@ -173,6 +176,8 @@ document.getElementById('open-last-file').onclick = function () {
 
 function openFile(path) {
     filepath = path;
+    filename = filepath.substring(filepath.lastIndexOf('\\')+1);
+
     fs.readFile(filepath, (err, file_data) => {
         if (err) 
             throw err;
@@ -184,17 +189,15 @@ function openFile(path) {
 function initTextContent(file_data){
     document.getElementById('lineNums').innerHTML = '';
     document.getElementById('text-container').innerHTML = '';
-
     let lines = file_data.split('\n');
-    text_span = document.createElement('SPAN');
-    text_span.style = 'display:block;position:relative;left:50px;background-color:#333B42;color:white;word-break:keep-all;white-space:nowrap;';
-    text_span.id = 'textSpan';
-    text_span.innerHTML = file_data;
-    text_span.innerHTML += '\n';
-    text_span.contentEditable = 'plaintext-only';
+    tab1_code = document.getElementById('tab1-code');;
+    tab1_code = document.createElement('CODE');
+    tab1_code.innerHTML = file_data;
+    tab1_code.innerHTML += '\n';
+    tab1_code.contentEditable = 'plaintext-only';
     const numOfLines = lines.length + 1;  
     lines = lines.toString().replace(/,/g, '');
-    text.appendChild(text_span);
+    text.appendChild(tab1_code);
     for (lastLine = 1; lastLine < numOfLines; lastLine++) {
         const numSpan = document.createElement('SPAN');
         numSpan.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;color:#AAAAAA;font-size:12px;text-align:right;';
@@ -202,11 +205,11 @@ function initTextContent(file_data){
         lineNums.appendChild(numSpan);
         lineNums.appendChild(document.createElement('BR'));
     }
-    text_span.addEventListener('keydown', function(e){
+    tab1_code.addEventListener('keydown', function(e){
         if(currentFileIsSaved)
             fs.readFile(filepath, (err, file_data) => {
                 if (err) throw err;
-                if(text_span.innerHTML !== file_data.toString())
+                if(tab1_code.innerHTML !== file_data.toString())
                     currentFileIsSaved = false;
             });
     });
@@ -237,7 +240,7 @@ function saveAs(){
 }
 
 function save(){
-    const temp = text_span.innerHTML;
+    const temp = tab1_code.innerHTML;
         fs.writeFile(filepath, temp, function(err) {
             if(err)
                 console.log(err);
@@ -344,15 +347,26 @@ document.getElementById('run-RunWithJava').onclick = function(){
 function runWithJava(){
     console.log('running');
     const spawn = require('child_process').spawn;
-    const bat = spawn('cmd.exe', ['/c', 'C:\\Users\\Kirin\\OneDrive\\Desktop\\Electron-test\\test.bat', 'C:\\Users\\Kirin\\OneDrive\\Desktop\\Electron-test', 'Input.java', 'Input']);  //IT WORKS!!!!!
+    console.log(filepath);
+    const bat = spawn('cmd.exe', ['/c', 'test.bat', filepath.substring(0, filepath.lastIndexOf('\\')), filename, filename.substring(0, filename.indexOf('.'))]);  //IT WORKS!!!!!
 
     bat.stdout.on('data', (data) => {
         let str = String.fromCharCode.apply(null, data);          //output from batch also option 1 for a callback
+        terminal.innerHTML = terminal.innerHTML + str + '\n';
         console.log(str);
+    });
+
+    bat.stderr.on('data', (data) => {
+        // As said before, convert the Uint8Array to a readable string.
+        var str = String.fromCharCode.apply(null, data);
+        terminal.innerHTML = terminal.innerHTML + str + '\n';
+        console.error(str);
     });
 
     bat.on('exit', (code) => {
         console.log(`Child exited with code ${code}`);     // output from batch also option 2 for a callback     
+        terminal.innerHTML = terminal.innerHTML + '\n';
+
     });
 }
 
@@ -431,14 +445,17 @@ terminal_resize.addEventListener('mousedown', function(e){
     });
 });
 
+
 function resize(e){
-    let stopResize = false;
     body.style.userSelect = 'none';
     body.style.cursor = 'n-resize';
     console.log(terminal.style.height.substring(0,terminal.style.height.length-2) + ' ' + e.clientY + ' ' + (window.innerHeight - 100));
     if(terminal.style.height.substring(0,terminal.style.height.length-2) <= 400 && e.clientY >= window.innerHeight - 398 && terminal.style.height.substring(0,terminal.style.height.length-2) > 100){
         terminal.style.top = e.clientY + 'px';
         terminal.style.height = window.innerHeight - e.clientY + 'px';
+        tab1_code.style.height = (window.innerHeight - (window.innerHeight - e.clientY) - content.offsetTop - 30) + 'px';
+        console.log(tab1_code.style.height);
+
     }
     else if (terminal.style.height.substring(0,terminal.style.height.length-2) <= 100 && e.clientY > window.innerHeight - 100){
         terminal.style.top = window.innerHeight - 98 +  'px';
