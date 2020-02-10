@@ -198,7 +198,7 @@ body::-webkit-scrollbar {
     width: 80%;
 }
 
-.code {
+/* .code {
     width:100%;
     height:calc(77% + 2px);
     resize:none;
@@ -210,7 +210,7 @@ body::-webkit-scrollbar {
     word-break:keep-all;
     white-space:nowrap;
     overflow:scroll;
-}
+} */
 
 #cursor-follower {
     display: none;
@@ -235,11 +235,19 @@ body::-webkit-scrollbar {
     top: 80%;
     z-index: 10;
     color: #ffffff;
+    overflow: auto;
+
+}
+
+#terminal-text {
+    display: block;
+    white-space: pre;
+    overflow: auto;
 }
 
 #terminal-resizer {
-    position: relative;
-    top: 0;
+    position: fixed;
+    top: 80%;
     padding: 0;
     width: 100%;
     margin: 0;

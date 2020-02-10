@@ -190,8 +190,9 @@ function initTextContent(file_data){
     document.getElementById('lineNums').innerHTML = '';
     document.getElementById('text-container').innerHTML = '';
     let lines = file_data.split('\n');
-    tab1_code = document.getElementById('tab1-code');;
     tab1_code = document.createElement('CODE');
+    tab1_code.style.height = (window.innerHeight - content.offsetTop - 20) + 'px';
+
     tab1_code.innerHTML = file_data;
     tab1_code.innerHTML += '\n';
     tab1_code.contentEditable = 'plaintext-only';
@@ -346,26 +347,27 @@ document.getElementById('run-RunWithJava').onclick = function(){
 
 function runWithJava(){
     console.log('running');
+    const terminal_output = document.getElementById('terminal-text');
     const spawn = require('child_process').spawn;
     console.log(filepath);
     const bat = spawn('cmd.exe', ['/c', 'test.bat', filepath.substring(0, filepath.lastIndexOf('\\')), filename, filename.substring(0, filename.indexOf('.'))]);  //IT WORKS!!!!!
 
     bat.stdout.on('data', (data) => {
         let str = String.fromCharCode.apply(null, data);          //output from batch also option 1 for a callback
-        terminal.innerHTML = terminal.innerHTML + str + '\n';
+        terminal_output.innerHTML = terminal_output.innerHTML + str;
         console.log(str);
     });
 
     bat.stderr.on('data', (data) => {
         // As said before, convert the Uint8Array to a readable string.
         var str = String.fromCharCode.apply(null, data);
-        terminal.innerHTML = terminal.innerHTML + str + '\n';
+        terminal_output.innerHTML = terminal_output.innerHTML + str;
         console.error(str);
     });
 
     bat.on('exit', (code) => {
         console.log(`Child exited with code ${code}`);     // output from batch also option 2 for a callback     
-        terminal.innerHTML = terminal.innerHTML + '\n';
+        terminal_output.innerHTML = terminal_output.innerHTML;
 
     });
 }
@@ -449,8 +451,8 @@ terminal_resize.addEventListener('mousedown', function(e){
 function resize(e){
     body.style.userSelect = 'none';
     body.style.cursor = 'n-resize';
-    console.log(terminal.style.height.substring(0,terminal.style.height.length-2) + ' ' + e.clientY + ' ' + (window.innerHeight - 100));
     if(terminal.style.height.substring(0,terminal.style.height.length-2) <= 400 && e.clientY >= window.innerHeight - 398 && terminal.style.height.substring(0,terminal.style.height.length-2) > 100){
+        terminal_resize.style.top = e.clientY + 'px';
         terminal.style.top = e.clientY + 'px';
         terminal.style.height = window.innerHeight - e.clientY + 'px';
         tab1_code.style.height = (window.innerHeight - (window.innerHeight - e.clientY) - content.offsetTop - 30) + 'px';
