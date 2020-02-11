@@ -130,7 +130,7 @@ ipcRenderer.on('window-closed', function (e) {
     filepath = (filepath === undefined || filepath === "" ? data.lastfilepath : filepath);
     const data = {
         lastfilepath: filepath,
-        unsavedfilecontent: currentFileIsSaved ? '' : tab1_code.innerHTML,
+        unsavedfilecontent: currentFileIsSaved ? '' : removeSyntaxHighlighting(tab1_code.innerHTML),
         cwd: process.cwd()
     }
     const jsonString = JSON.stringify(data)
@@ -192,9 +192,12 @@ function initTextContent(file_data){
     let lines = file_data.split('\n');
     tab1_code = document.createElement('CODE');
     tab1_code.style.height = (window.innerHeight - content.offsetTop - 20) + 'px';
-
-    tab1_code.innerHTML = file_data;
-    tab1_code.innerHTML += '\n';
+    tab1_code.style.top = 0;
+    tab1_code.style.padding = 0;
+    for(let i = 0; i < lines.length; i++){
+        tab1_code.innerHTML += '<span class="line">' + lines[i] + '\n</span>';
+    }
+    
     tab1_code.contentEditable = 'plaintext-only';
     const numOfLines = lines.length + 1;  
     lines = lines.toString().replace(/,/g, '');
@@ -214,6 +217,8 @@ function initTextContent(file_data){
                     currentFileIsSaved = false;
             });
     });
+
+    hljs.initHighlighting();
 }
 
 document.getElementById('save-file').onclick = function(){
@@ -241,7 +246,7 @@ function saveAs(){
 }
 
 function save(){
-    const temp = tab1_code.innerHTML;
+    const temp = removeSyntaxHighlighting(tab1_code.innerHTML);
         fs.writeFile(filepath, temp, function(err) {
             if(err)
                 console.log(err);
@@ -355,6 +360,7 @@ function runWithJava(){
     bat.stdout.on('data', (data) => {
         let str = String.fromCharCode.apply(null, data);          //output from batch also option 1 for a callback
         terminal_output.innerHTML = terminal_output.innerHTML + str;
+        terminal.scrollTop = terminal_output.scrollHeight;
         console.log(str);
     });
 
@@ -362,13 +368,14 @@ function runWithJava(){
         // As said before, convert the Uint8Array to a readable string.
         var str = String.fromCharCode.apply(null, data);
         terminal_output.innerHTML = terminal_output.innerHTML + str;
+        terminal.scrollTop = terminal_output.scrollHeight;
         console.error(str);
     });
 
     bat.on('exit', (code) => {
         console.log(`Child exited with code ${code}`);     // output from batch also option 2 for a callback     
         terminal_output.innerHTML = terminal_output.innerHTML;
-
+        terminal.scrollTop = terminal_output.scrollHeight;
     });
 }
 
@@ -447,6 +454,10 @@ terminal_resize.addEventListener('mousedown', function(e){
     });
 });
 
+function removeSyntaxHighlighting(content){
+    return content.replace(/(<([^>]+)>)/ig, ''); // regex to replace most html tags
+}
+
 
 function resize(e){
     body.style.userSelect = 'none';
@@ -455,15 +466,17 @@ function resize(e){
         terminal_resize.style.top = e.clientY + 'px';
         terminal.style.top = e.clientY + 'px';
         terminal.style.height = window.innerHeight - e.clientY + 'px';
-        tab1_code.style.height = (window.innerHeight - (window.innerHeight - e.clientY) - content.offsetTop - 30) + 'px';
-        console.log(tab1_code.style.height);
+        tab1_code.style.height = (window.innerHeight - (window.innerHeight - e.clientY) - content.offsetTop) + 'px';
 
     }
-    else if (terminal.style.height.substring(0,terminal.style.height.length-2) <= 100 && e.clientY > window.innerHeight - 100){
+    else if (terminal.style.height.substring(0,terminal.style.height.length-2) <= 100 && e.clientY >= window.innerHeight - 103){
+        terminal_resize.style.top = window.innerHeight - 98 + 'px';
         terminal.style.top = window.innerHeight - 98 +  'px';
         terminal.style.height = 98 + 'px';
     }
     else{
+        console.log(terminal.style.height + ' ' + e.clientY);
+        terminal_resize.style.top = window.innerHeight - 398 + 'px';
         terminal.style.top = window.innerHeight - 398 +  'px';
         terminal.style.height = 398 + 'px';
     }

@@ -51,10 +51,6 @@ body::-webkit-scrollbar {
     outline: none;
 }
 
-#content span:focus {
-    outline: none;
-}
-
 .dropdown {
     float: left;
 }
@@ -191,11 +187,18 @@ body::-webkit-scrollbar {
 }
 
 #text-container {
+    margin: 0;
+    padding: 0;
     position: relative;
-    left: 50px;
+    left: 40px;
     overflow: auto;
     height: 100%;
     width: 80%;
+    top: 0;
+}
+
+.line:focus{
+    outline: auto;
 }
 
 /* .code {
