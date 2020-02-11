@@ -1,12 +1,8 @@
-public class Input{
-
+public class Input {
     public static void main(String[] args){
-        System.out.println("Hey you");
+        System.out.println("test");
     }
 }
-
-
-
 
 
 

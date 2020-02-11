@@ -99,14 +99,11 @@ document.addEventListener('keydown', (e) => {
     }
     else if(e.code === "KeyS" && e.ctrlKey)
         saveCurrentFile();
-    else if(e.code === "ArrowUp")
-        document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) - 18) + 'px';
-    else if(e.code === "ArrowDown")
-        document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) + 18) + 'px';
 
 });
 
 document.addEventListener('keyup', function(e){
+    
     if (e.code === "Backspace" || e.code === "Delete") {
         const arr = text.children[0].innerHTML.split('\n');
         if (arr[arr.length - 1] === "") {
@@ -122,7 +119,10 @@ document.addEventListener('keyup', function(e){
             document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) - 18) + 'px';
         }
         lastLine = arr.length + 1;
+        document.getElementById('cursor-follower').style.top = (getSelectionCoords().y - content.offsetTop) + 'px';
     }
+    else if(e.code === "ArrowUp" || e.code === "ArrowRight" || e.code === "ArrowDown" || e.code === "ArrowLeft")
+        document.getElementById('cursor-follower').style.top = (getSelectionCoords().y - content.offsetTop) + 'px';
 });
 
 
@@ -194,9 +194,8 @@ function initTextContent(file_data){
     tab1_code.style.height = (window.innerHeight - content.offsetTop - 20) + 'px';
     tab1_code.style.top = 0;
     tab1_code.style.padding = 0;
-    for(let i = 0; i < lines.length; i++){
-        tab1_code.innerHTML += '<span class="line">' + lines[i] + '\n</span>';
-    }
+    tab1_code.style.fontSize = "16px";
+    tab1_code.innerHTML = file_data;
     
     tab1_code.contentEditable = 'plaintext-only';
     const numOfLines = lines.length + 1;  
@@ -217,8 +216,7 @@ function initTextContent(file_data){
                     currentFileIsSaved = false;
             });
     });
-
-    hljs.initHighlighting();
+    highlightSyntax(tab1_code);
 }
 
 document.getElementById('save-file').onclick = function(){
@@ -380,11 +378,11 @@ function runWithJava(){
 }
 
 
-text.addEventListener('mousedown', function (e) {
-    console.log(tab1_code.selectionStart);
+text.addEventListener('mouseup', function () {
     let temp = document.getElementById('cursor-follower');
     temp.style.display = "block";
-    temp.style.top = "" + (Math.floor((e.clientY - content.offsetTop + content.scrollTop)/18)*18) + "px";
+    let pos = getSelectionCoords();
+    temp.style.top = "" + (pos.y - content.offsetTop) + "px";
     hideAllDropdowns();
     dropdownIsVisible = false;
 });
@@ -483,3 +481,50 @@ function resize(e){
     }
 }
 
+function getSelectionCoords(win) {
+    win = win || window;
+    var doc = win.document;
+    var sel = doc.selection, range, rects, rect;
+    var x = 0, y = 0;
+    if (sel) {
+        if (sel.type != "Control") {
+            range = sel.createRange();
+            range.collapse(true);
+            x = range.boundingLeft;
+            y = range.boundingTop;
+        }
+    } else if (win.getSelection) {
+        sel = win.getSelection();
+        if (sel.rangeCount) {
+            range = sel.getRangeAt(0).cloneRange();
+            if (range.getClientRects) {
+                range.collapse(true);
+                rects = range.getClientRects();
+                if (rects.length > 0) {
+                    rect = rects[0];
+                }
+                x = rect.left;
+                y = rect.top;
+            }
+            // Fall back to inserting a temporary element
+            if (x == 0 && y == 0) {
+                var span = doc.createElement("span");
+                if (span.getClientRects) {
+                    // Ensure span has dimensions and position by
+                    // adding a zero-width space character
+                    span.appendChild( doc.createTextNode("\u200b") );
+                    range.insertNode(span);
+                    rect = span.getClientRects()[0];
+                    x = rect.left;
+                    y = rect.top;
+                    var spanParent = span.parentNode;
+                    spanParent.removeChild(span);
+
+                    // Glue any broken text nodes back together
+                    spanParent.normalize();
+                }
+            }
+        }
+    }
+    return { x: x, y: y };
+}

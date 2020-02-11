@@ -8,7 +8,6 @@ Sunburst-like style (c) Vasily Polovnyov <vast@whiteants.net>
   display: block;
   overflow-x: auto;
   padding: 0.5em;
-  background: #000;
   color: #f8f8f8;
 }
 
@@ -70,18 +69,15 @@ Sunburst-like style (c) Vasily Polovnyov <vast@whiteants.net>
 }
 
 .hljs-formula {
-  background-color: #0e2231;
   color: #f8f8f8;
   font-style: italic;
 }
 
 .hljs-addition {
-  background-color: #253b22;
   color: #f8f8f8;
 }
 
 .hljs-deletion {
-  background-color: #420e09;
   color: #f8f8f8;
 }
 
