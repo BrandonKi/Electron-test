@@ -381,6 +381,7 @@ function runWithJava(){
 
 
 text.addEventListener('mousedown', function (e) {
+    console.log(tab1_code.selectionStart);
     let temp = document.getElementById('cursor-follower');
     temp.style.display = "block";
     temp.style.top = "" + (Math.floor((e.clientY - content.offsetTop + content.scrollTop)/18)*18) + "px";
