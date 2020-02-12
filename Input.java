@@ -1,8 +1,8 @@
-public class Input {
-    public static void main(String[] args){
-        System.out.println("test");
+   public class Input {
+        public static void main(String[] args){
+            System.out.println("test");
+        }
     }
-}
-
-
-
+  
+  
+ 
