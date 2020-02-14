@@ -201,7 +201,7 @@ function initTextContent(file_data){
     for(let i = 1; i <= lines.length; i++)
         tab1_code.innerHTML += ' <span id="line_' + i + '">' + lines[i-1] + '\n</span>';
     tab1_code.contentEditable = 'plaintext-only';
-    const numOfLines = lines.length + 1;  
+    const numOfLines = lines.length + 1;
     lines = lines.toString().replace(/,/g, '');
     text.appendChild(tab1_code);
     for (lastLine = 1; lastLine < numOfLines; lastLine++) {
