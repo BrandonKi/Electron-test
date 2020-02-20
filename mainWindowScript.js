@@ -99,6 +99,10 @@ document.addEventListener('keydown', (e) => {
     }
     else if(e.code === "KeyS" && e.ctrlKey)
         saveCurrentFile();
+    else if(e.code === "Tab"){
+        e.preventDefault();
+        // insert 4 spaces at cursor position
+    }
 
 });
 
@@ -138,7 +142,7 @@ ipcRenderer.on('window-closed', function (e) {
         unsavedfilecontent: currentFileIsSaved ? '' : removeSyntaxHighlighting(tab1_code.innerHTML),
         cwd: process.cwd()
     }
-    const jsonString = JSON.stringify(data)
+    const jsonString = JSON.stringify(data);
     fs.writeFile(app_path + '\\data.json', jsonString, err => {
         if (err) {
             console.log('Error writing file', err)
@@ -182,7 +186,7 @@ document.getElementById('open-last-file').onclick = function () {
 function openFile(path) {
     filepath = path;
     filename = filepath.substring(filepath.lastIndexOf('\\')+1);
-
+    titleText.innerHTML = filename;
     fs.readFile(filepath, (err, file_data) => {
         if (err) 
             throw err;
@@ -203,7 +207,7 @@ function initTextContent(file_data){
     for(let i = 1; i <= lines.length; i++)
         tab1_code.innerHTML += '<span id="line_' + i + '">' + lines[i-1] + '</span>\n';
     tab1_code.contentEditable = 'plaintext-only';
-    const numOfLines = lines.length + 1;  
+    const numOfLines = lines.length + 1;
     lines = lines.toString().replace(/,/g, '');
     text.appendChild(tab1_code);
     for (lastLine = 1; lastLine < numOfLines; lastLine++) {
@@ -249,7 +253,10 @@ function saveAs(){
 }
 
 function save(){
+
     const temp = removeSyntaxHighlighting(tab1_code.innerHTML);
+        console.log(tab1_code.innerHTML);
+        console.log(temp);
         fs.writeFile(filepath, temp, function(err) {
             if(err)
                 console.log(err);
@@ -354,17 +361,14 @@ document.getElementById('run-RunWithJava').onclick = function(){
 
 
 function runWithJava(){
-    console.log('running');
     const terminal_output = document.getElementById('terminal-text');
     const spawn = require('child_process').spawn;
-    console.log(filepath);
     const bat = spawn('cmd.exe', ['/c', 'test.bat', filepath.substring(0, filepath.lastIndexOf('\\')), filename, filename.substring(0, filename.indexOf('.'))]);  //IT WORKS!!!!!
 
     bat.stdout.on('data', (data) => {
         let str = String.fromCharCode.apply(null, data);          //output from batch also option 1 for a callback
         terminal_output.innerHTML = terminal_output.innerHTML + str;
         terminal.scrollTop = terminal_output.scrollHeight;
-        console.log(str);
     });
 
     bat.stderr.on('data', (data) => {
@@ -479,7 +483,6 @@ function resize(e){
         terminal.style.height = 98 + 'px';
     }
     else{
-        console.log(terminal.style.height + ' ' + e.clientY);
         terminal_resize.style.top = window.innerHeight - 398 + 'px';
         terminal.style.top = window.innerHeight - 398 +  'px';
         terminal.style.height = 398 + 'px';
