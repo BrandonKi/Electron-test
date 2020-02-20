@@ -109,7 +109,6 @@ document.addEventListener('keyup', function(e){
         if (arr[arr.length - 1] === "") {
             arr.pop();
         }
-        tempstr = text.children[0].innerHTML;
         const temp = Array.from(lineNums.children);
         while (arr.length < temp.length / 2) {
             temp[temp.length - 1].remove();
@@ -123,9 +122,12 @@ document.addEventListener('keyup', function(e){
     }
     else if(e.code === "ArrowUp" || e.code === "ArrowRight" || e.code === "ArrowDown" || e.code === "ArrowLeft")
         document.getElementById('cursor-follower').style.top = (getSelectionCoords().y - content.offsetTop) + 'px';
-    let temp_coords = (getSelectionCoords().y - content.offsetTop);
-    highlightSyntax(tab1_code, temp_coords/18);
-    setCursor(temp_coords);
+    else if(!(e.code === "KeyZ" && e.ctrlKey) && !(e.code === "KeyS" && e.ctrlKey) && e.code.indexOf('Shift') == -1){
+        console.log(e.code);
+        let temp_coords = getSelectionCoords();
+        highlightSyntax(tab1_code, temp_coords.y/18);
+        setCursor(temp_coords);
+    }
 });
 
 
@@ -199,7 +201,7 @@ function initTextContent(file_data){
     tab1_code.style.padding = 0;
     tab1_code.style.fontSize = "16px";
     for(let i = 1; i <= lines.length; i++)
-        tab1_code.innerHTML += ' <span id="line_' + i + '">' + lines[i-1] + '\n</span>';
+        tab1_code.innerHTML += '<span id="line_' + i + '">' + lines[i-1] + '</span>\n';
     tab1_code.contentEditable = 'plaintext-only';
     const numOfLines = lines.length + 1;  
     lines = lines.toString().replace(/,/g, '');
@@ -484,9 +486,9 @@ function resize(e){
     }
 }
 
-function getSelectionCoords(win) {
-    win = win || window;
-    var doc = win.document;
+function getSelectionCoords() {
+    let win = window;
+    var doc = window.document;
     var sel = doc.selection, range, rects, rect;
     var x = 0, y = 0;
     if (sel) {
@@ -496,8 +498,8 @@ function getSelectionCoords(win) {
             x = range.boundingLeft;
             y = range.boundingTop;
         }
-    } else if (win.getSelection) {
-        sel = win.getSelection();
+    } else if (doc.getSelection) {
+        sel = doc.getSelection();
         if (sel.rangeCount) {
             range = sel.getRangeAt(0).cloneRange();
             if (range.getClientRects) {
@@ -534,28 +536,13 @@ function getSelectionCoords(win) {
 
 function setCursor(pos) { 
               
-    var tag = tab1_code; 
-      
-    // Creates range object 
-    var setpos = document.createRange(); 
-      
-    // Creates object for selection 
-    var set = window.getSelection(); 
-      
-    // Set start position of range 
-    console.log(tag.childNodes);
-    setpos.setStart(tag.childNodes[pos], 10); 
-      
-    // Collapse range within its boundary points 
-    // Returns boolean 
-    setpos.collapse(true); 
-      
-    // Remove all ranges set 
-    set.removeAllRanges(); 
-      
-    // Add range with respect to range object. 
-    set.addRange(setpos); 
-      
-    // Set cursor on focus 
-    tag.focus(); 
+    var el = tab1_code;
+    var range = document.createRange();
+    var sel = window.getSelection();
+    console.log(el.childNodes);
+    range.setStart(el.childNodes[pos.y/18], pos.x);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    el.focus(); 
 } 
