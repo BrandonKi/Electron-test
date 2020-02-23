@@ -126,10 +126,11 @@ document.addEventListener('keyup', function(e){
     }
     else if(e.code === "ArrowUp" || e.code === "ArrowRight" || e.code === "ArrowDown" || e.code === "ArrowLeft")
         document.getElementById('cursor-follower').style.top = (getSelectionCoords().y - content.offsetTop) + 'px';
-    else if(!(e.code === "KeyZ" && e.ctrlKey) && !(e.code === "KeyS" && e.ctrlKey) && e.code.indexOf('Shift') == -1){
+    else if(!(e.code === "KeyZ" && e.ctrlKey) && !(e.code === "KeyS" && e.ctrlKey) 
+                && e.code.indexOf('Shift') == -1 && e.code.indexOf('Control') == -1 && e.code.indexOf('CapsLock')){
         console.log(e.code);
         let temp_coords = getSelectionCoords();
-        highlightSyntax(tab1_code, temp_coords.y/18);
+        highlightSyntax(removeSyntaxHighlighting(tab1_code), temp_coords.y/18);
         setCursor(temp_coords);
     }
 });
@@ -155,12 +156,9 @@ ipcRenderer.on('window-closed', function (e) {
 
 document.getElementById('file').onclick = function () {
     const temp = document.getElementById('file-dropdown');
-    hideAllDropdowns('file');
-    if (temp.style.display === "block") {
-        temp.style.display = "none";
-        dropdownIsVisible = false;
-    }
-    else {
+    hideAllDropdowns();
+    dropdownIsVisible = false;
+    if(temp.style.display !== "block") {
         temp.style.display = "block";
         dropdownIsVisible = true;
     }
@@ -205,10 +203,9 @@ function initTextContent(file_data){
     tab1_code.style.padding = 0;
     tab1_code.style.fontSize = "16px";
     for(let i = 1; i <= lines.length; i++)
-        tab1_code.innerHTML += '<span id="line_' + i + '">' + lines[i-1] + '</span>\n';
+        tab1_code.innerHTML += '<span>' + lines[i-1] + '\n</span>';
     tab1_code.contentEditable = 'plaintext-only';
     const numOfLines = lines.length + 1;
-    lines = lines.toString().replace(/,/g, '');
     text.appendChild(tab1_code);
     for (lastLine = 1; lastLine < numOfLines; lastLine++) {
         const numSpan = document.createElement('SPAN');
@@ -254,7 +251,7 @@ function saveAs(){
 
 function save(){
 
-    const temp = removeSyntaxHighlighting(tab1_code.innerHTML);
+    const temp = unEscapeCharacters(removeSyntaxHighlighting(tab1_code.innerHTML));
         console.log(tab1_code.innerHTML);
         console.log(temp);
         fs.writeFile(filepath, temp, function(err) {
@@ -268,12 +265,9 @@ function save(){
 
 document.getElementById('edit').onclick = function () {
     const temp = document.getElementById('edit-dropdown');
-    hideAllDropdowns('edit');
-    if (temp.style.display === "block") {
-        temp.style.display = "none";
-        dropdownIsVisible = false;
-    }
-    else {
+    hideAllDropdowns();
+    dropdownIsVisible = false;
+    if(temp.style.display !== "block") {
         temp.style.display = "block";
         dropdownIsVisible = true;
     }
@@ -281,12 +275,9 @@ document.getElementById('edit').onclick = function () {
 
 document.getElementById('view').onclick = function () {
     const temp = document.getElementById('view-dropdown');
-    hideAllDropdowns('view');
-    if (temp.style.display === "block") {
-        temp.style.display = "none";
-        dropdownIsVisible = false;
-    }
-    else {
+    hideAllDropdowns();
+    dropdownIsVisible = false;
+    if(temp.style.display !== "block") {
         temp.style.display = "block";
         dropdownIsVisible = true;
     }
@@ -294,12 +285,9 @@ document.getElementById('view').onclick = function () {
 
 document.getElementById('help').onclick = function () {
     const temp = document.getElementById('help-dropdown');
-    hideAllDropdowns('help');
-    if (temp.style.display === "block") {
-        temp.style.display = "none";
-        dropdownIsVisible = false;
-    }
-    else {
+    hideAllDropdowns();
+    dropdownIsVisible = false;
+    if(temp.style.display !== "block") {
         temp.style.display = "block";
         dropdownIsVisible = true;
     }
@@ -307,12 +295,9 @@ document.getElementById('help').onclick = function () {
 
 document.getElementById('run').onclick = function(){
     const temp = document.getElementById('run-dropdown');
-    hideAllDropdowns('run');
-    if (temp.style.display === "block") {
-        temp.style.display = "none";
-        dropdownIsVisible = false;
-    }
-    else {
+    hideAllDropdowns();
+    dropdownIsVisible = false;
+    if(temp.style.display !== "block") {
         temp.style.display = "block";
         dropdownIsVisible = true;
     }
@@ -320,35 +305,35 @@ document.getElementById('run').onclick = function(){
 
 document.getElementById('file').addEventListener('mouseover', function () {
     if (dropdownIsVisible) {
-        hideAllDropdowns('file');
+        hideAllDropdowns();
         document.getElementById('file-dropdown').style.display = 'block';
     }
 });
 
 document.getElementById('edit').addEventListener('mouseover', function () {
     if (dropdownIsVisible) {
-        hideAllDropdowns('edit');
+        hideAllDropdowns();
         document.getElementById('edit-dropdown').style.display = 'block';
     }
 });
 
 document.getElementById('view').addEventListener('mouseover', function () {
     if (dropdownIsVisible) {
-        hideAllDropdowns('view');
+        hideAllDropdowns();
         document.getElementById('view-dropdown').style.display = 'block';
     }
 });
 
 document.getElementById('help').addEventListener('mouseover', function () {
     if (dropdownIsVisible) {
-        hideAllDropdowns('help');
+        hideAllDropdowns();
         document.getElementById('help-dropdown').style.display = 'block';
     }
 });
 
 document.getElementById('run').addEventListener('mouseover', function () {
     if (dropdownIsVisible) {
-        hideAllDropdowns('run');
+        hideAllDropdowns();
         document.getElementById('run-dropdown').style.display = 'block';
     }
 });
@@ -392,49 +377,20 @@ text.addEventListener('mouseup', function () {
     temp.style.display = "block";
     let pos = getSelectionCoords();
     temp.style.top = "" + (pos.y - content.offsetTop) + "px";
-    hideAllDropdowns();
-    dropdownIsVisible = false;
 });
 
+document.addEventListener('mouseup', function(){
+    hideAllDropdowns();
+    dropdownIsVisible = false;
+})
 
-function hideAllDropdowns(str) {
-    if (str === 'file') {
-        document.getElementById('edit-dropdown').style.display = "none";
-        document.getElementById('view-dropdown').style.display = "none";
-        document.getElementById('help-dropdown').style.display = "none";
-        document.getElementById('run-dropdown').style.display = "none";
-    }
-    else if (str === 'edit') {
-        document.getElementById('file-dropdown').style.display = "none";
-        document.getElementById('view-dropdown').style.display = "none";
-        document.getElementById('help-dropdown').style.display = "none";
-        document.getElementById('run-dropdown').style.display = "none";
-    }
-    else if (str === 'view') {
-        document.getElementById('file-dropdown').style.display = "none";
-        document.getElementById('edit-dropdown').style.display = "none";
-        document.getElementById('help-dropdown').style.display = "none";
-        document.getElementById('run-dropdown').style.display = "none";
-    }
-    else if (str === 'help') {
-        document.getElementById('file-dropdown').style.display = "none";
-        document.getElementById('edit-dropdown').style.display = "none";
-        document.getElementById('view-dropdown').style.display = "none";
-        document.getElementById('run-dropdown').style.display = "none";
-    }
-    else if (str === 'run'){
-        document.getElementById('file-dropdown').style.display = "none";
-        document.getElementById('edit-dropdown').style.display = "none";
-        document.getElementById('view-dropdown').style.display = "none";
-        document.getElementById('help-dropdown').style.display = "none";
-    }
-    else {
-        document.getElementById('file-dropdown').style.display = "none";
-        document.getElementById('edit-dropdown').style.display = "none";
-        document.getElementById('view-dropdown').style.display = "none";
-        document.getElementById('help-dropdown').style.display = "none";
-        document.getElementById('run-dropdown').style.display = "none";
-    }
+
+function hideAllDropdowns() {
+    document.getElementById('file-dropdown').style.display = "none";
+    document.getElementById('edit-dropdown').style.display = "none";
+    document.getElementById('view-dropdown').style.display = "none";
+    document.getElementById('help-dropdown').style.display = "none";
+    document.getElementById('run-dropdown').style.display = "none";
 }
 
 document.getElementById('maximize').addEventListener('click', function () {
@@ -466,11 +422,15 @@ function removeSyntaxHighlighting(content){
     return content.replace(/(<([^>]+)>)/ig, ''); // regex to replace most html tags
 }
 
+function unEscapeCharacters(content){
+    return content.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+}
+
 
 function resize(e){
     body.style.userSelect = 'none';
     body.style.cursor = 'n-resize';
-    if(terminal.style.height.substring(0,terminal.style.height.length-2) <= 400 && e.clientY >= window.innerHeight - 398 && terminal.style.height.substring(0,terminal.style.height.length-2) > 100){
+    if(terminal.style.height.substring(0,terminal.style.height.length-2) <= 400 && e.clientY >= window.innerHeight - 398 && terminal.style.height.substring(0,terminal.style.height.length-2) >= 100){
         terminal_resize.style.top = e.clientY + 'px';
         terminal.style.top = e.clientY + 'px';
         terminal.style.height = window.innerHeight - e.clientY + 'px';
@@ -538,12 +498,12 @@ function getSelectionCoords() {
 }
 
 function setCursor(pos) { 
-              
+    console.log(pos.x/20);
     var el = tab1_code;
     var range = document.createRange();
     var sel = window.getSelection();
-    console.log(el.childNodes);
-    range.setStart(el.childNodes[pos.y/18], pos.x);
+    console.log(Math.floor(pos.y/18)-3);
+    range.setStart(el.childNodes[Math.floor(pos.y/18)-3].childNodes[0], (pos.x/16)-5);
     range.collapse(true);
     sel.removeAllRanges();
     sel.addRange(range);
