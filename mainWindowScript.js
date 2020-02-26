@@ -130,7 +130,7 @@ document.addEventListener('keyup', function(e){
                 && e.code.indexOf('Shift') == -1 && e.code.indexOf('Control') == -1 && e.code.indexOf('CapsLock')){
         console.log(e.code);
         let temp_coords = getSelectionCoords();
-        highlightSyntax(removeSyntaxHighlighting(tab1_code), temp_coords.y/18);
+        tab1_code.innerHTML = highlightSyntax(removeSyntaxHighlighting(tab1_code.innerHTML), temp_coords.y/18);
         setCursor(temp_coords);
     }
 });
@@ -143,7 +143,7 @@ ipcRenderer.on('window-closed', function (e) {
         unsavedfilecontent: currentFileIsSaved ? '' : removeSyntaxHighlighting(tab1_code.innerHTML),
         cwd: process.cwd()
     }
-    const jsonString = JSON.stringify(data);
+    const jsonString = JSON.stringify(data, null, 2);
     fs.writeFile(app_path + '\\data.json', jsonString, err => {
         if (err) {
             console.log('Error writing file', err)
@@ -194,16 +194,15 @@ function openFile(path) {
 }
 
 function initTextContent(file_data){
+    console.log(file_data);
     document.getElementById('lineNums').innerHTML = '';
     document.getElementById('text-container').innerHTML = '';
     let lines = file_data.split('\n');
     tab1_code = document.createElement('CODE');
     tab1_code.style.height = (window.innerHeight - content.offsetTop - 20) + 'px';
-    tab1_code.style.top = 0;
-    tab1_code.style.padding = 0;
     tab1_code.style.fontSize = "16px";
     for(let i = 1; i <= lines.length; i++)
-        tab1_code.innerHTML += '<span>' + lines[i-1] + '\n</span>';
+        tab1_code.innerHTML += '<span>' + lines[i-1] + '\n</span>';1
     tab1_code.contentEditable = 'plaintext-only';
     const numOfLines = lines.length + 1;
     text.appendChild(tab1_code);
@@ -222,7 +221,7 @@ function initTextContent(file_data){
                     currentFileIsSaved = false;
             });
     });
-    highlightSyntax(tab1_code);
+    tab1_code.innerHTML = highlightSyntax(removeSyntaxHighlighting(tab1_code.innerHTML));
 }
 
 document.getElementById('save-file').onclick = function(){
@@ -252,7 +251,6 @@ function saveAs(){
 function save(){
 
     const temp = unEscapeCharacters(removeSyntaxHighlighting(tab1_code.innerHTML));
-        console.log(tab1_code.innerHTML);
         console.log(temp);
         fs.writeFile(filepath, temp, function(err) {
             if(err)
@@ -357,7 +355,7 @@ function runWithJava(){
     });
 
     bat.stderr.on('data', (data) => {
-        // As said before, convert the Uint8Array to a readable string.
+        //convert the Uint8Array to a readable string.
         var str = String.fromCharCode.apply(null, data);
         terminal_output.innerHTML = terminal_output.innerHTML + str;
         terminal.scrollTop = terminal_output.scrollHeight;
@@ -419,13 +417,13 @@ terminal_resize.addEventListener('mousedown', function(e){
 });
 
 function removeSyntaxHighlighting(content){
+    console.log(content);
     return content.replace(/(<([^>]+)>)/ig, ''); // regex to replace most html tags
 }
 
 function unEscapeCharacters(content){
     return content.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
 }
-
 
 function resize(e){
     body.style.userSelect = 'none';
@@ -509,3 +507,9 @@ function setCursor(pos) {
     sel.addRange(range);
     el.focus(); 
 } 
+
+window.onresize = function(){
+    console.log(window.innerWidth - 100);
+    const terminal_output = document.getElementById('terminal-text');
+    terminal_output.style.width = (window.innerWidth - 20) + 'px';
+}

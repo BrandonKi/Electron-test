@@ -1,11 +1,11 @@
 function highlightSyntax(code, lineNum){
     // if(lineNum == undefined){
-        var data = code.innerHTML;
+        var data = code;
         console.log(data); 
         data = data.replace(/("([^>]*?)")(?!>)/igm, '<span class="string">$1</span>');
         data = data.replace(/(\/\/.*)$/igm, '<span class="comment">$1</span>');
         data = data.replace(/(\/\*[\s\S]*\*\/)/igm, '<span class="comment">$1</span>');
-        code.innerHTML = data;
+        return data;
         //      
     // }
     // else{

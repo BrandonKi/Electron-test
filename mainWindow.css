@@ -264,8 +264,14 @@ code:focus {
 
 #terminal-text {
     display: block;
-    white-space: pre;
-    overflow: auto;
+    white-space: pre-wrap;
+    width: 96%;
+    overflow: none;
+}
+
+.terminal-output {
+    color: #1d81f3;
+    display: inline;
 }
 
 #terminal-resizer:hover {
