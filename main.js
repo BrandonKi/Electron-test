@@ -13,7 +13,9 @@ app.on('ready', function () {
     //create new window
     mainWindow = new BrowserWindow(
         {
-            webPreferences: { nodeIntegration: true },
+            webPreferences: { 
+                nodeIntegration: true 
+            },
             frame : false
         }
     );

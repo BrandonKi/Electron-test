@@ -70,37 +70,11 @@ document.addEventListener('keydown', (e) => {
             document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) + 18) + 'px';
         }
     }
-    else if ((e.code === "KeyZ" && e.ctrlKey)){
-        for(let i = 0; i < 1; i++){
-            const arr = text.children[0].innerHTML.split('\n');
-            while(lastLine < arr.length){
-                const span = document.createElement('SPAN');
-                span.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
-                span.innerHTML = lastLine++;
-                lineNums.appendChild(span);
-                lineNums.appendChild(document.createElement('BR'));
-            }
-            document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) + 18) + 'px';
-
-            if (arr[arr.length - 1] === "") {
-                arr.pop();
-            }
-
-            tempstr = text.children[0].innerHTML;
-            const temp = Array.from(lineNums.children);
-            while (arr.length < temp.length / 2) {
-                temp[temp.length - 1].remove();
-                temp[temp.length - 2].remove();
-                temp.pop();
-                temp.pop();
-            }
-            lastLine = arr.length + 1;
-        }
-    }
     else if(e.code === "KeyS" && e.ctrlKey)
         saveCurrentFile();
     else if(e.code === "Tab"){
         e.preventDefault();
+        console.log(tab1_code.childNodes[0]);
         // insert 4 spaces at cursor position
     }
 
@@ -126,7 +100,7 @@ document.addEventListener('keyup', function(e){
     }
     else if(e.code === "ArrowUp" || e.code === "ArrowRight" || e.code === "ArrowDown" || e.code === "ArrowLeft")
         document.getElementById('cursor-follower').style.top = (getSelectionCoords().y - content.offsetTop) + 'px';
-    else if(!(e.code === "KeyZ" && e.ctrlKey) && !(e.code === "KeyS" && e.ctrlKey) 
+    else if(!(e.code === "KeyZ" && e.ctrlKey) && !e.code === "Tab" && !(e.code === "KeyS" && e.ctrlKey) 
                 && e.code.indexOf('Shift') == -1 && e.code.indexOf('Control') == -1 && e.code.indexOf('CapsLock')){
         console.log(e.code);
         let temp_coords = getSelectionCoords();
@@ -202,7 +176,7 @@ function initTextContent(file_data){
     tab1_code.style.height = (window.innerHeight - content.offsetTop - 20) + 'px';
     tab1_code.style.fontSize = "16px";
     for(let i = 1; i <= lines.length; i++)
-        tab1_code.innerHTML += '<span>' + lines[i-1] + '\n</span>';1
+        tab1_code.innerHTML += '<span>' + lines[i-1] + '\n</span>';
     tab1_code.contentEditable = 'plaintext-only';
     const numOfLines = lines.length + 1;
     text.appendChild(tab1_code);
@@ -422,7 +396,7 @@ function removeSyntaxHighlighting(content){
 }
 
 function unEscapeCharacters(content){
-    return content.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+    return content.replace(/&gt;/g, '>').replace(/&lt;/g, '<'); 
 }
 
 function resize(e){
@@ -509,7 +483,6 @@ function setCursor(pos) {
 } 
 
 window.onresize = function(){
-    console.log(window.innerWidth - 100);
     const terminal_output = document.getElementById('terminal-text');
     terminal_output.style.width = (window.innerWidth - 20) + 'px';
 }
