@@ -310,6 +310,13 @@ document.getElementById('run').addEventListener('mouseover', function () {
     }
 });
 
+document.getElementById('run-Run').onclick = function(){
+    if(filename.indexOf('.') != -1 && filename.substring(filename.indexOf('.')+1) === 'java')
+        runWithJava();
+    hideAllDropdowns();
+    dropdownIsVisible = false;
+}
+
 document.getElementById('run-RunWithJava').onclick = function(){
     runWithJava();
     hideAllDropdowns();
@@ -333,7 +340,7 @@ function runWithJava(){
             terminal_input.innerHTML = '';
         }
     }); 
-    
+
     bat.stdout.on('data', (data) => {
         let str = String.fromCharCode.apply(null, data);          //output from batch also option 1 for a callback
         terminal_output.innerHTML = terminal_output.innerHTML + str;
