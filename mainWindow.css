@@ -236,7 +236,7 @@ code:focus {
     padding: 0;
     width: 110%;
     margin: 0;
-    height: 5px;
+    height: 1%;
     border: solid grey;
     border-width: 3px 0 0 0;
 }
@@ -267,11 +267,19 @@ code:focus {
     white-space: pre-wrap;
     width: 96%;
     overflow: none;
+    left: 30%;
 }
 
-.terminal-output {
-    color: #1d81f3;
-    display: inline;
+#terminal-input {
+    left: 30%;
+    width: 96%;
+    display: block;
+}
+
+#terminal-input:focus {
+    outline: none;
+    background-color: #222222;
+
 }
 
 #terminal-resizer:hover {

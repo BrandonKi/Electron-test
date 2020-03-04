@@ -318,10 +318,22 @@ document.getElementById('run-RunWithJava').onclick = function(){
 
 
 function runWithJava(){
+    const terminal_input = document.getElementById('terminal-input');
     const terminal_output = document.getElementById('terminal-text');
     const spawn = require('child_process').spawn;
     const bat = spawn('cmd.exe', ['/c', 'test.bat', filepath.substring(0, filepath.lastIndexOf('\\')), filename, filename.substring(0, filename.indexOf('.'))]);  //IT WORKS!!!!!
 
+    terminal_input.focus();
+    terminal_input.addEventListener('keydown', function(e){
+        if(e.code === 'Enter'){
+            e.preventDefault();
+            bat.stdin.write(terminal_input.innerHTML + '\n');
+            terminal_output.innerHTML += terminal_input.innerHTML + '\n';
+            terminal.scrollTop = terminal_output.scrollHeight;
+            terminal_input.innerHTML = '';
+        }
+    }); 
+    
     bat.stdout.on('data', (data) => {
         let str = String.fromCharCode.apply(null, data);          //output from batch also option 1 for a callback
         terminal_output.innerHTML = terminal_output.innerHTML + str;
