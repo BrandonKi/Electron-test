@@ -102,11 +102,13 @@ document.addEventListener('keyup', function(e){
         document.getElementById('cursor-follower').style.top = (getSelectionCoords().y - content.offsetTop) + 'px';
     else if(!(e.code === "KeyZ" && e.ctrlKey) && !e.code === "Tab" && !(e.code === "KeyS" && e.ctrlKey) 
                 && e.code.indexOf('Shift') == -1 && e.code.indexOf('Control') == -1 && e.code.indexOf('CapsLock')){
-        console.log(e.code);
         let temp_coords = getSelectionCoords();
         tab1_code.innerHTML = highlightSyntax(removeSyntaxHighlighting(tab1_code.innerHTML), temp_coords.y/18);
         setCursor(temp_coords);
     }
+    let temp_coords = getSelectionCoords();
+    tab1_code.innerHTML = highlightSyntax(removeSyntaxHighlighting(tab1_code.innerHTML), (temp_coords.y-60)/18+1);
+    setCursor(temp_coords);
 });
 
 
@@ -114,7 +116,7 @@ ipcRenderer.on('window-closed', function (e) {
     filepath = (filepath === undefined || filepath === "" ? data.lastfilepath : filepath);
     const data = {
         lastfilepath: filepath,
-        unsavedfilecontent: currentFileIsSaved ? '' : removeSyntaxHighlighting(tab1_code.innerHTML),
+        unsavedfilecontent: currentFileIsSaved ? '' : removeTags(tab1_code.innerHTML),
         cwd: process.cwd()
     }
     const jsonString = JSON.stringify(data, null, 2);
@@ -168,7 +170,6 @@ function openFile(path) {
 }
 
 function initTextContent(file_data){
-    console.log(file_data);
     document.getElementById('lineNums').innerHTML = '';
     document.getElementById('text-container').innerHTML = '';
     let lines = file_data.split('\n');
@@ -176,7 +177,7 @@ function initTextContent(file_data){
     tab1_code.style.height = (window.innerHeight - content.offsetTop - 20) + 'px';
     tab1_code.style.fontSize = "16px";
     for(let i = 1; i <= lines.length; i++)
-        tab1_code.innerHTML += '<span>' + lines[i-1] + '\n</span>';
+        tab1_code.innerHTML += '<span>' + lines[i-1] + '</span>\n';
     tab1_code.contentEditable = 'plaintext-only';
     const numOfLines = lines.length + 1;
     text.appendChild(tab1_code);
@@ -224,8 +225,7 @@ function saveAs(){
 
 function save(){
 
-    const temp = unEscapeCharacters(removeSyntaxHighlighting(tab1_code.innerHTML));
-        console.log(temp);
+    const temp = unEscapeCharacters(removeTags(tab1_code.innerHTML));
         fs.writeFile(filepath, temp, function(err) {
             if(err)
                 console.log(err);
@@ -312,24 +312,28 @@ document.getElementById('run').addEventListener('mouseover', function () {
 
 document.getElementById('run-Run').onclick = function(){
     if(filename.indexOf('.') != -1 && filename.substring(filename.indexOf('.')+1) === 'java')
-        runWithJava();
+        run('Java');
+    else if(filename.indexOf('.') != -1 && filename.substring(filename.indexOf('.')+1) === 'py')
+        run('Python');
     hideAllDropdowns();
     dropdownIsVisible = false;
 }
 
 document.getElementById('run-RunWithJava').onclick = function(){
-    runWithJava();
+    run('Java');
     hideAllDropdowns();
     dropdownIsVisible = false;
 };
 
 
-function runWithJava(){
+function run(language){
+    terminal.style.display = 'block';
     const terminal_input = document.getElementById('terminal-input');
-    const terminal_output = document.getElementById('terminal-text');
+    const terminal_output = document.getElementById('terminal-output');
     const spawn = require('child_process').spawn;
-    const bat = spawn('cmd.exe', ['/c', 'test.bat', filepath.substring(0, filepath.lastIndexOf('\\')), filename, filename.substring(0, filename.indexOf('.'))]);  //IT WORKS!!!!!
-
+    let bat;
+    bat = spawn('cmd.exe', ['/c', 'run' + language + '.bat', filepath.substring(0, filepath.lastIndexOf('\\')), filename]);  //IT WORKS!!!!!
+    terminal_input.contentEditable = true;
     terminal_input.focus();
     terminal_input.addEventListener('keydown', function(e){
         if(e.code === 'Enter'){
@@ -359,10 +363,15 @@ function runWithJava(){
         console.log(`Child exited with code ${code}`);     // output from batch also option 2 for a callback     
         terminal_output.innerHTML = terminal_output.innerHTML;
         terminal.scrollTop = terminal_output.scrollHeight;
+        terminal_input.contentEditable = false;
     });
 }
 
-
+document.getElementById('exit-terminal').onclick = function(){
+    document.getElementById('terminal-output').innerHTML = '';
+    document.getElementById('terminal-input').innerHTML = '';
+    terminal.style.display = 'none';
+}
 text.addEventListener('mouseup', function () {
     let temp = document.getElementById('cursor-follower');
     temp.style.display = "block";
@@ -410,7 +419,10 @@ terminal_resize.addEventListener('mousedown', function(e){
 });
 
 function removeSyntaxHighlighting(content){
-    console.log(content);
+    return content.replace(/(?<=.)(<([^>]+)>)(?=.)/ig, ''); // regex to replace all html tags 
+}                                                           // that are not at the begining 
+                                                            // or end of a line
+function removeTags(content){
     return content.replace(/(<([^>]+)>)/ig, ''); // regex to replace most html tags
 }
 
@@ -421,17 +433,17 @@ function unEscapeCharacters(content){
 function resize(e){
     body.style.userSelect = 'none';
     body.style.cursor = 'n-resize';
-    if(terminal.style.height.substring(0,terminal.style.height.length-2) <= 400 && e.clientY >= window.innerHeight - 398 && terminal.style.height.substring(0,terminal.style.height.length-2) >= 100){
+    if (terminal.style.height.substring(0,terminal.style.height.length-2) <= 100 && e.clientY >= window.innerHeight - 102){
+        terminal_resize.style.top = window.innerHeight - 98 + 'px';
+        terminal.style.top = window.innerHeight - 98 +  'px';
+        terminal.style.height = 98 + 'px';
+    }
+    else if(terminal.style.height == '' || (terminal.style.height.substring(0,terminal.style.height.length-2) <= 400 && e.clientY >= window.innerHeight - 398 && terminal.style.height.substring(0,terminal.style.height.length-2) >= 98)){
         terminal_resize.style.top = e.clientY + 'px';
         terminal.style.top = e.clientY + 'px';
         terminal.style.height = window.innerHeight - e.clientY + 'px';
         tab1_code.style.height = (window.innerHeight - (window.innerHeight - e.clientY) - content.offsetTop) + 'px';
 
-    }
-    else if (terminal.style.height.substring(0,terminal.style.height.length-2) <= 100 && e.clientY >= window.innerHeight - 103){
-        terminal_resize.style.top = window.innerHeight - 98 + 'px';
-        terminal.style.top = window.innerHeight - 98 +  'px';
-        terminal.style.height = 98 + 'px';
     }
     else{
         terminal_resize.style.top = window.innerHeight - 398 + 'px';
@@ -441,7 +453,6 @@ function resize(e){
 }
 
 function getSelectionCoords() {
-    let win = window;
     var doc = window.document;
     var sel = doc.selection, range, rects, rect;
     var x = 0, y = 0;
@@ -489,12 +500,16 @@ function getSelectionCoords() {
 }
 
 function setCursor(pos) { 
-    console.log(pos.x/20);
-    var el = tab1_code;
-    var range = document.createRange();
-    var sel = window.getSelection();
-    console.log(Math.floor(pos.y/18)-3);
-    range.setStart(el.childNodes[Math.floor(pos.y/18)-3].childNodes[0], (pos.x/16)-5);
+    let el = tab1_code;
+    let y = ((pos.y-el.getBoundingClientRect().top)/18*2);
+    let x = 1;
+    console.log(el.childNodes);
+    console.log(pos.x - el.getBoundingClientRect().left);
+    console.log(el.childNodes[y]);
+    console.log(document.getElementById('test').style.width);
+    let range = document.createRange();
+    let sel = window.getSelection();
+    range.setStart(el.childNodes[y], (pos.x/16)-5);
     range.collapse(true);
     sel.removeAllRanges();
     sel.addRange(range);
@@ -502,6 +517,6 @@ function setCursor(pos) {
 } 
 
 window.onresize = function(){
-    const terminal_output = document.getElementById('terminal-text');
+    const terminal_output = document.getElementById('terminal-output');
     terminal_output.style.width = (window.innerWidth - 20) + 'px';
 }

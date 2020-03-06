@@ -219,6 +219,7 @@ code:focus {
 }
 
 #terminal {
+    display: block;
     position: fixed;
     height: 20%;
     width: 110%;
@@ -262,7 +263,7 @@ code:focus {
     outline: none;
 }
 
-#terminal-text {
+#terminal-output {
     display: block;
     white-space: pre-wrap;
     width: 96%;
