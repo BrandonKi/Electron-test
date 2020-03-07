@@ -7,7 +7,7 @@ const terminal_resize = document.getElementById('terminal-resizer');
 const content = document.getElementById('content');
 const lineNums = document.getElementById('lineNums');
 const text = document.getElementById('text-container');
-let tab1_code;
+let userCode;
 let lastLine;
 let currentLineNum;
 let currentLines;
@@ -54,14 +54,13 @@ function initWithDirectory(dir, arg){
     }
 }
 
-content.addEventListener('scroll', (e) => {
-    const topPos = content.scrollTop;
-    lineNums.scrollTop = topPos;
+text.addEventListener('scroll', (e) => {
+    lineNums.scrollTop = text.scrollTop;
 });
 
 document.addEventListener('keydown', (e) => {
     if ((e.code === "Enter" && !e.ctrlKey)) {
-        if (document.activeElement == tab1_code) {
+        if (document.activeElement == userCode) {
             const span = document.createElement('SPAN');
             span.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;z-index:-3;color:#AAAAAA;font-size:12px;text-align:right;';
             span.innerHTML = lastLine++;
@@ -74,7 +73,7 @@ document.addEventListener('keydown', (e) => {
         saveCurrentFile();
     else if(e.code === "Tab"){
         e.preventDefault();
-        console.log(tab1_code.childNodes[0]);
+        console.log(userCode.childNodes[0]);
         // insert 4 spaces at cursor position
     }
 
@@ -103,11 +102,11 @@ document.addEventListener('keyup', function(e){
     else if(!(e.code === "KeyZ" && e.ctrlKey) && !e.code === "Tab" && !(e.code === "KeyS" && e.ctrlKey) 
                 && e.code.indexOf('Shift') == -1 && e.code.indexOf('Control') == -1 && e.code.indexOf('CapsLock')){
         let temp_coords = getSelectionCoords();
-        tab1_code.innerHTML = highlightSyntax(removeSyntaxHighlighting(tab1_code.innerHTML), temp_coords.y/18);
+        userCode.innerHTML = highlightSyntax(removeSyntaxHighlighting(userCode.innerHTML), temp_coords.y/18);
         setCursor(temp_coords);
     }
     let temp_coords = getSelectionCoords();
-    tab1_code.innerHTML = highlightSyntax(removeSyntaxHighlighting(tab1_code.innerHTML), (temp_coords.y-60)/18+1);
+    userCode.innerHTML = highlightSyntax(removeSyntaxHighlighting(userCode.innerHTML), (temp_coords.y-60)/18+1);
     setCursor(temp_coords);
 });
 
@@ -116,7 +115,7 @@ ipcRenderer.on('window-closed', function (e) {
     filepath = (filepath === undefined || filepath === "" ? data.lastfilepath : filepath);
     const data = {
         lastfilepath: filepath,
-        unsavedfilecontent: currentFileIsSaved ? '' : removeTags(tab1_code.innerHTML),
+        unsavedfilecontent: currentFileIsSaved ? '' : removeTags(userCode.innerHTML),
         cwd: process.cwd()
     }
     const jsonString = JSON.stringify(data, null, 2);
@@ -173,14 +172,15 @@ function initTextContent(file_data){
     document.getElementById('lineNums').innerHTML = '';
     document.getElementById('text-container').innerHTML = '';
     let lines = file_data.split('\n');
-    tab1_code = document.createElement('CODE');
-    tab1_code.style.height = (window.innerHeight - content.offsetTop - 20) + 'px';
-    tab1_code.style.fontSize = "16px";
+    userCode = document.createElement('CODE');
+    userCode.style.height = (window.innerHeight - content.offsetTop - 20) + 'px';
+    userCode.style.fontSize = "16px";
+    userCode.style.color = '#DDDDDD';
     for(let i = 1; i <= lines.length; i++)
-        tab1_code.innerHTML += '<span>' + lines[i-1] + '</span>\n';
-    tab1_code.contentEditable = 'plaintext-only';
+        userCode.innerHTML += '<span>' + lines[i-1] + '</span>\n';
+    userCode.contentEditable = 'plaintext-only';
     const numOfLines = lines.length + 1;
-    text.appendChild(tab1_code);
+    text.appendChild(userCode);
     for (lastLine = 1; lastLine < numOfLines; lastLine++) {
         const numSpan = document.createElement('SPAN');
         numSpan.style = 'position:absolute;width:25px;height:22px;user-select:none;padding:2px;margin:0;color:#AAAAAA;font-size:12px;text-align:right;';
@@ -188,15 +188,15 @@ function initTextContent(file_data){
         lineNums.appendChild(numSpan);
         lineNums.appendChild(document.createElement('BR'));
     }
-    tab1_code.addEventListener('keydown', function(e){
+    userCode.addEventListener('keydown', function(e){
         if(currentFileIsSaved)
             fs.readFile(filepath, (err, file_data) => {
                 if (err) throw err;
-                if(tab1_code.innerHTML !== file_data.toString())
+                if(userCode.innerHTML !== file_data.toString())
                     currentFileIsSaved = false;
             });
     });
-    tab1_code.innerHTML = highlightSyntax(removeSyntaxHighlighting(tab1_code.innerHTML));
+    userCode.innerHTML = highlightSyntax(removeSyntaxHighlighting(userCode.innerHTML));
 }
 
 document.getElementById('save-file').onclick = function(){
@@ -225,7 +225,7 @@ function saveAs(){
 
 function save(){
 
-    const temp = unEscapeCharacters(removeTags(tab1_code.innerHTML));
+    const temp = unEscapeCharacters(removeTags(userCode.innerHTML));
         fs.writeFile(filepath, temp, function(err) {
             if(err)
                 console.log(err);
@@ -332,7 +332,7 @@ function run(language){
     const terminal_output = document.getElementById('terminal-output');
     const spawn = require('child_process').spawn;
     let bat;
-    bat = spawn('cmd.exe', ['/c', 'run' + language + '.bat', filepath.substring(0, filepath.lastIndexOf('\\')), filename]);  //IT WORKS!!!!!
+    bat = spawn('cmd.exe', ['/c', 'run' + language + '.bat', filepath.substring(0, filepath.lastIndexOf('\\')), filepath.substring(filepath.lastIndexOf('\\')+1), filename]);  //IT WORKS!!!!!
     terminal_input.contentEditable = true;
     terminal_input.focus();
     terminal_input.addEventListener('keydown', function(e){
@@ -342,6 +342,9 @@ function run(language){
             terminal_output.innerHTML += terminal_input.innerHTML + '\n';
             terminal.scrollTop = terminal_output.scrollHeight;
             terminal_input.innerHTML = '';
+        }
+        else if(e.code === 'KeyC' && e.ctrlKey){
+            bat.kill('SIGINT');
         }
     }); 
 
@@ -442,7 +445,7 @@ function resize(e){
         terminal_resize.style.top = e.clientY + 'px';
         terminal.style.top = e.clientY + 'px';
         terminal.style.height = window.innerHeight - e.clientY + 'px';
-        tab1_code.style.height = (window.innerHeight - (window.innerHeight - e.clientY) - content.offsetTop) + 'px';
+        userCode.style.height = (window.innerHeight - (window.innerHeight - e.clientY) - content.offsetTop) + 'px';
 
     }
     else{
@@ -500,13 +503,12 @@ function getSelectionCoords() {
 }
 
 function setCursor(pos) { 
-    let el = tab1_code;
+    let el = userCode;
     let y = ((pos.y-el.getBoundingClientRect().top)/18*2);
     let x = 1;
     console.log(el.childNodes);
     console.log(pos.x - el.getBoundingClientRect().left);
     console.log(el.childNodes[y]);
-    console.log(document.getElementById('test').style.width);
     let range = document.createRange();
     let sel = window.getSelection();
     range.setStart(el.childNodes[y], (pos.x/16)-5);
