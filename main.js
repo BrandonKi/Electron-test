@@ -16,6 +16,8 @@ app.on('ready', function () {
             webPreferences: { 
                 nodeIntegration: true 
             },
+            minHeight: 500,
+            minWidth: 500,
             frame : false
         }
     );
