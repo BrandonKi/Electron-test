@@ -1,0 +1,8 @@
+Every language must have three files:
+        .kw
+        .regex
+        . 
+All three files must follow the naming convention:
+    Java example:       _java_.kw, _java_.regex, 
+
+The .kw or keyword file is a list 

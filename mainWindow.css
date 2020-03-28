@@ -160,6 +160,7 @@ body::-webkit-scrollbar {
     background-color: #3A3A3A; /* 292929 */
     left: calc(21% + 13px);
     top: 26px;
+    z-index: -1;
 }
 
 #lineNums {

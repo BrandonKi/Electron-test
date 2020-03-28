@@ -101,13 +101,12 @@ document.addEventListener('keyup', function(e){
         document.getElementById('cursor-follower').style.top = (getSelectionCoords().y - content.offsetTop) + 'px';
     else if(!(e.code === "KeyZ" && e.ctrlKey) && !e.code === "Tab" && !(e.code === "KeyS" && e.ctrlKey) 
                 && e.code.indexOf('Shift') == -1 && e.code.indexOf('Control') == -1 && e.code.indexOf('CapsLock')){
-        let temp_coords = getSelectionCoords();
-        userCode.innerHTML = highlightSyntax(removeSyntaxHighlighting(userCode.innerHTML), temp_coords.y/18);
-        setCursor(temp_coords);
     }
-    let temp_coords = getSelectionCoords();
-    userCode.innerHTML = highlightSyntax(removeSyntaxHighlighting(userCode.innerHTML), (temp_coords.y-60)/18+1);
-    setCursor(temp_coords);
+    else if (e.ctrlKey && e.code == "KeyH")
+        userCode.innerHTML = highlightSyntax(removeSyntaxHighlighting(userCode.innerHTML));
+
+    //let temp_coords = getSelectionCoords();
+    //setCursor(temp_coords);
 });
 
 
@@ -115,7 +114,7 @@ ipcRenderer.on('window-closed', function (e) {
     filepath = (filepath === undefined || filepath === "" ? data.lastfilepath : filepath);
     const data = {
         lastfilepath: filepath,
-        unsavedfilecontent: currentFileIsSaved ? '' : removeTags(userCode.innerHTML),
+        unsavedfilecontent: currentFileIsSaved ? '' : removeSyntaxHighlighting(userCode.innerHTML),
         cwd: process.cwd()
     }
     const jsonString = JSON.stringify(data, null, 2);
@@ -176,8 +175,7 @@ function initTextContent(file_data){
     userCode.style.height = (window.innerHeight - content.offsetTop - 20) + 'px';
     userCode.style.fontSize = "16px";
     userCode.style.color = '#DDDDDD';
-    for(let i = 1; i <= lines.length; i++)
-        userCode.innerHTML += '<span>' + lines[i-1] + '</span>\n';
+    userCode.innerHTML = file_data;
     userCode.contentEditable = 'plaintext-only';
     const numOfLines = lines.length + 1;
     text.appendChild(userCode);
@@ -196,13 +194,22 @@ function initTextContent(file_data){
                     currentFileIsSaved = false;
             });
     });
-    userCode.innerHTML = highlightSyntax(removeSyntaxHighlighting(userCode.innerHTML));
+    if(filename != undefined){
+        switch (filename.substring(filename.indexOf('.')+1)){
+            case 'java':
+                initHighlighting('java', userCode);
+                break;
+            case 'py':
+                initHighlighting('python', userCode);
+                break;
+        }
+    }
 }
 
 document.getElementById('save-file').onclick = function(){
     saveCurrentFile();
 }
-
+ 
 function saveCurrentFile(){
     if(filepath == undefined)
         saveAs();
@@ -225,7 +232,7 @@ function saveAs(){
 
 function save(){
 
-    const temp = unEscapeCharacters(removeTags(userCode.innerHTML));
+    const temp = unEscapeCharacters(removeSyntaxHighlighting(userCode.innerHTML));
         fs.writeFile(filepath, temp, function(err) {
             if(err)
                 console.log(err);
@@ -422,12 +429,8 @@ terminal_resize.addEventListener('mousedown', function(e){
 });
 
 function removeSyntaxHighlighting(content){
-    return content.replace(/(?<=.)(<([^>]+)>)(?=.)/ig, ''); // regex to replace all html tags 
-}                                                           // that are not at the begining 
-                                                            // or end of a line
-function removeTags(content){
-    return content.replace(/(<([^>]+)>)/ig, ''); // regex to replace most html tags
-}
+    return content.replace(/(<([^>]+)>)/ig, ''); 
+}                                                           
 
 function unEscapeCharacters(content){
     return content.replace(/&gt;/g, '>').replace(/&lt;/g, '<'); 
