@@ -156,9 +156,9 @@ body::-webkit-scrollbar {
     border-radius: 10px 10px 0px 0px;
     position: fixed;
     height: 24px;
-    width: 10%;
-    background-color: #3A3A3A; /* 292929 */
-    left: calc(21% + 13px);
+    width: 3em;
+    background-color: #3A3A3A; 
+    left: 20%;
     top: 26px;
     z-index: -1;
 }

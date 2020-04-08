@@ -1,4 +1,4 @@
-purple {
+#9471d1 {
     case,
     catch,
     break,
@@ -18,7 +18,7 @@ purple {
     switch
 }
 
-rgb(100,150,255) {
+#71a7d1 {
     abstract,
     const,
     false,
@@ -47,7 +47,9 @@ rgb(100,150,255) {
     interface,
     class
 }
-green {
+
+#71d173 {
+    String,
     boolean,
     byte,
     char,

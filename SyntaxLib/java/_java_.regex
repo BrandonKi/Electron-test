@@ -1,2 +1,30 @@
-/\w*\./ig,
-/\w*\(\)/ig 
+//class names
+#71cfd1 {
+    /(\w*(?:(?=\.)))/ig,
+    /
+}
+//functions calls and declarations
+#ced171 {
+    /(\w+(?:(?=\(.*)))/ig,
+    /
+}
+//strings not in html tags
+#d1b471 {
+    /(\"([^>]*?)\")(?!>)/ig,
+    /
+}
+//single line comments
+#619c54 {
+    /(\/\/.*)/ig,
+    /
+}
+//Variable type declaration
+#71d173 {
+    /(\w+(?:(?=&space&\w+&space&=)))/ig,
+    /
+}
+//Number constants
+#6fd971 {
+    /((?:(?<![\w$]))\d(?:(?!\w)))/ig,
+    /
+}

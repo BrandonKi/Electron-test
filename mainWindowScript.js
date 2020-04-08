@@ -9,10 +9,9 @@ const lineNums = document.getElementById('lineNums');
 const text = document.getElementById('text-container');
 let userCode;
 let lastLine;
-let currentLineNum;
-let currentLines;
 let filepath;
 let filename;
+const tabs = [];
 let dropdownIsVisible = false;
 const fs = require('fs');
 const titleText = document.getElementById('title-text');
@@ -41,10 +40,12 @@ function initWithDirectory(dir, arg){
     filepath = dir;
     switch(arg){
         case 0:
+            addNewTab();
             initTextContent('\n');
             break;
         case 1:
             filename = dir.substring(dir.lastIndexOf('\\')+1);
+            addNewTab(filename);
             initTextContent(data.unsavedfilecontent);
             break;
         case 2:
@@ -69,13 +70,22 @@ document.addEventListener('keydown', (e) => {
             document.getElementById('cursor-follower').style.top = '' + (parseInt(document.getElementById('cursor-follower').style.top.substring(0,document.getElementById('cursor-follower').style.top.length-2)) + 18) + 'px';
         }
     }
-    else if(e.code === "KeyS" && e.ctrlKey)
+    else if(e.code === "KeyS" && e.ctrlKey) 
         saveCurrentFile();
-    else if(e.code === "Tab"){
-        e.preventDefault();
-        console.log(userCode.childNodes[0]);
-        // insert 4 spaces at cursor position
+    else if(e.code === "Tab" && document.activeElement == userCode){
+        e.preventDefault();  
+        var sel = document.getSelection();
+        var range = sel.getRangeAt(0);
+
+        range.insertNode(document.createTextNode("\u00a0\u00a0\u00a0\u00a0"));
+
+        range.setStartAfter(tabNode);
+        range.setEndAfter(tabNode); 
+        sel.removeAllRanges();
+        sel.addRange(range);
     }
+    else if(e.code === "ArrowUp" || e.code === "ArrowRight" || e.code === "ArrowDown" || e.code === "ArrowLeft")
+        document.getElementById('cursor-follower').style.top = (getSelectionCoords().y - content.offsetTop) + 'px';
 
 });
 
@@ -382,11 +392,10 @@ document.getElementById('exit-terminal').onclick = function(){
     document.getElementById('terminal-input').innerHTML = '';
     terminal.style.display = 'none';
 }
-text.addEventListener('mouseup', function () {
+text.addEventListener('mousedown', function (e) {
     let temp = document.getElementById('cursor-follower');
     temp.style.display = "block";
-    let pos = getSelectionCoords();
-    temp.style.top = "" + (pos.y - content.offsetTop) + "px";
+    temp.style.top = "" + (Math.floor((e.clientY - content.offsetTop)/18)*18) + "px";
 });
 
 document.addEventListener('mouseup', function(){
@@ -524,4 +533,12 @@ function setCursor(pos) {
 window.onresize = function(){
     const terminal_output = document.getElementById('terminal-output');
     terminal_output.style.width = (window.innerWidth - 20) + 'px';
+    const terminal = document.getElementById('terminal');
+    terminal.style.height = (window.innerHeight - terminal.style.top.substring(0,terminal.style.top.length-2)) + "px";
+    console.log(terminal.style.height);
+}
+
+function addNewTab(string){
+    //document.getElementById('body').innerHTML += '<div class="tab" id="tab1"></div>';
+    
 }
